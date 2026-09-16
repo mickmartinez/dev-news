@@ -4,6 +4,10 @@
 - **Stack:** Angular 22 (Strict Mode, Standalone Components only). No NgModules.
 - **State & Storage:** Use Dexie.js (IndexedDB) exclusively for persisting the "Favorites" feature. Do not use LocalStorage. 
 - **Data Fetching:** Do not cache the main news feed to disk. All news feeds must be fetched in real-time on component load.
+- **Required Skills:** Consult `.github/skills/angular-developer/SKILL.md` for all Angular architecture, component, and testing decisions, and `.github/skills/frontend-design/SKILL.md` for all visual/UX design decisions. Do not improvise conventions these skills already cover.
+- **Component Files:** Every component's template and styles MUST live in separate `.html`/`.css` files via `templateUrl`/`styleUrl`. Inline `template`/`styles` strings are forbidden.
+- **Comments:** Do not add comments that restate what the code already shows. Only comment where intent genuinely isn't obvious, and keep it to one short line.
+- **Visual Design:** The UI is dark-mode by default (no light theme toggle). Use Tailwind CSS v4 utility classes bound to the design tokens defined in `src/styles.css` — do not hand-roll ad hoc colors/CSS variables per component.
 
 ## 2. Git Workflow (Strict Constraint)
 - Every newly created or modified component, service, model, or unit test MUST be committed as a standalone, atomic commit. 
