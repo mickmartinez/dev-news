@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin, map } from 'rxjs';
+import { Observable, forkJoin, map, catchError, of } from 'rxjs';
 import { DEVTO_TAGS } from '../../data/topic-tags';
 
 /** Shape of a single post as returned by the Hashnode public GraphQL API. */
@@ -49,10 +49,12 @@ export class HashnodeFetcherService {
 
   fetchArticles(): Observable<HashnodePost[]> {
     const requests = DEVTO_TAGS.map((slug) =>
-      this.http.post<HashnodeTagPostsResponse>(HASHNODE_GRAPHQL_API, {
-        query: POSTS_BY_TAG_QUERY,
-        variables: { slug },
-      }),
+      this.http
+        .post<HashnodeTagPostsResponse>(HASHNODE_GRAPHQL_API, {
+          query: POSTS_BY_TAG_QUERY,
+          variables: { slug },
+        })
+        .pipe(catchError(() => of<HashnodeTagPostsResponse>({ data: { tag: null } }))),
     );
 
     return forkJoin(requests).pipe(
