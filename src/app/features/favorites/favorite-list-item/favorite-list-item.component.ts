@@ -1,16 +1,14 @@
-import { ChangeDetectionStrategy, Component, OnInit, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FavoriteRecord } from '../../../models/favorite.model';
 
 @Component({
   selector: 'app-favorite-list-item',
-  template: '',
+  imports: [DatePipe],
+  templateUrl: './favorite-list-item.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FavoriteListItemComponent implements OnInit {
+export class FavoriteListItemComponent {
   readonly favorite = input.required<FavoriteRecord>();
   readonly remove = output<string>();
-
-  ngOnInit(): void {
-    throw new Error('Not implemented: FavoriteListItemComponent');
-  }
 }
