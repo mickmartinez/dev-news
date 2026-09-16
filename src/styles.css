@@ -10,6 +10,10 @@
   --color-cyan: #5ed8d0;
   --color-coral: #ff7968;
   --color-amber: #f6c766;
+  --color-devto: #4f8fef;
+  --color-mslearn: #a78bfa;
+  --color-hackernews: #ff6a3d;
+  --color-github: #c9d1d9;
   --font-serif: ui-serif, Georgia, 'Times New Roman', serif;
   --font-mono: ui-monospace, 'Cascadia Code', 'JetBrains Mono', Consolas, monospace;
 }
