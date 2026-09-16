@@ -1,7 +1,7 @@
 ---
 name: user-story-writer
 description: Use this agent when the user provides a brief description of a program increment, feature, or capability that needs to be broken down into structured user stories with acceptance criteria. This agent is particularly useful during sprint planning, backlog refinement, or when translating high-level requirements into actionable work items.
-tools: Glob, Grep, Read, Edit, Write, WebFetch, TodoWrite, WebSearch, LSP
+tools: vscode, execute, read, agent, edit, search, web, browser, todo
 model: sonnet
 color: orange
 ---

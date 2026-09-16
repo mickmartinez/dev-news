@@ -19,7 +19,7 @@ description: |-
   assistant: "I'll create those using the angular-model-generator agent to ensure they follow our architecture patterns."
   <Task tool call to angular-model-generator agent>
   </example>
-tools: Glob, Grep, Read, Edit, Write, TodoWrite
+tools: vscode, execute, read, agent, edit, search, web, browser, todo
 model: sonnet
 color: purple
 ---

@@ -1,6 +1,7 @@
 ---
 name: tdd-implementation
 description: Implements production Angular code to make failing UNIT TESTS pass (TDD Green phase). Use immediately after tdd-test-first agent completes, when tests are failing and need implementation, or when user requests "make tests pass" or "implement the code". Follows specifications in docs/specs/ and ensures all unit tests pass. Does NOT create end-to-end tests.
+tools: [vscode, execute, read, agent, edit, search, web, browser, todo]
 model: sonnet
 color: green
 ---

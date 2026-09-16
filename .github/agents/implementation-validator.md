@@ -2,7 +2,7 @@
 name: implementation-validator
 description: |-
   Use when verifying an Angular code implementation matches a technical specification in docs/specs/. Common scenarios: checking if a feature is complete and ready for QA, identifying what's left to implement, code review for spec compliance, or detecting incomplete implementations (stubbed methods, missing route/provider registration).
-tools: Glob, Grep, Read, WebFetch, TodoWrite, WebSearch, LSP
+tools: vscode, execute, read, agent, edit, search, web, browser, todo
 model: sonnet
 color: yellow
 ---
