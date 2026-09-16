@@ -46,17 +46,21 @@ describe('FeedFiltersComponent', () => {
     ).toBe(true);
   });
 
-  it('GivenSelections_WhenClearClicked_ThenEmitsClearEvent', () => {
+  it('GivenSelections_WhenClearClicked_ThenEmitsClearEvent', async () => {
     // Arrange
     const clears: void[] = [];
+    fixture.detectChanges();
     fixture.componentRef.setInput('selectedTags', ['angular']);
-    fixture.componentInstance.filtersCleared.subscribe(() => clears.push());
+    fixture.componentInstance.filtersCleared.subscribe(() => clears.push(undefined));
 
     // Act
     fixture.detectChanges();
-    (fixture.nativeElement as HTMLElement)
-      .querySelector<HTMLButtonElement>('[data-testid="clear-filters"]')
-      ?.click();
+    await fixture.whenStable();
+    const clearButton = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+      '[data-testid="clear-filters"]',
+    );
+    expect(clearButton?.disabled).toBe(false);
+    clearButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     // Assert
     expect(clears).toHaveLength(1);
