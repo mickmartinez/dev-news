@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin, map } from 'rxjs';
+import { Observable, forkJoin, map, catchError, of } from 'rxjs';
 import { DEVTO_TAGS } from '../../data/topic-tags';
 
 /** Shape of a single article as returned by the Dev.to public API. */
@@ -27,7 +27,9 @@ export class DevToFetcherService {
 
   fetchArticles(): Observable<DevToArticle[]> {
     const requests = DEVTO_TAGS.map((tag) =>
-      this.http.get<DevToArticle[]>(DEVTO_API_BASE, { params: { tag, per_page: 20 } }),
+      this.http.get<DevToArticle[]>(DEVTO_API_BASE, { params: { tag, per_page: 20 } }).pipe(
+        catchError(() => of<DevToArticle[]>([])),
+      ),
     );
 
     return forkJoin(requests).pipe(
