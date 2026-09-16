@@ -1,7 +1,7 @@
 import { DestroyRef, Injectable, Signal, computed, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ArticleSource, UnifiedArticle } from '../models/article.model';
-import { DEVTO_TAGS, MSLEARN_TOPICS } from '../data/topic-tags';
+import { DEVNEWS_TAGS } from '../data/topic-tags';
 import { FeedLoadStatus } from '../models/feed-filter-state.model';
 import { NewsAggregatorService } from './news-aggregator.service';
 
@@ -45,7 +45,7 @@ export class NewsFeedStateService {
     'hashnode',
     'github',
   ];
-  readonly availableTags: readonly string[] = [...DEVTO_TAGS, ...MSLEARN_TOPICS].map((tag) => tag.toLowerCase());
+  readonly availableTags: readonly string[] = [...DEVNEWS_TAGS].map((tag) => tag.toLowerCase());
 
   constructor() {
     this.destroyRef.onDestroy(() => this.activeLoad?.unsubscribe());
