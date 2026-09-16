@@ -1,0 +1,61 @@
+<main class="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+  @if (state.status() === 'loading') {
+    <div class="py-16 text-center font-mono text-sm text-muted" data-testid="loading-indicator" aria-live="polite">
+      Loading your feed…
+    </div>
+  } @else if (state.status() === 'loaded' && state.isFullFailure() && state.filteredArticles().length === 0) {
+    <section class="border border-line py-12 text-center" data-testid="full-feed-error" aria-live="assertive">
+      <h2 class="font-serif text-xl text-text">Feed could not be loaded</h2>
+      <button
+        type="button"
+        data-testid="retry-button"
+        class="mt-4 rounded border border-line px-4 py-1.5 font-mono text-xs text-muted transition-colors hover:border-cyan hover:text-cyan"
+        (click)="retry()"
+      >Retry</button>
+    </section>
+  } @else if (state.status() === 'loaded') {
+    @if (state.isPartialFailure()) {
+      <div
+        class="mb-4 border-l-2 border-amber bg-surface px-4 py-3 font-mono text-xs text-muted"
+        data-testid="partial-failure-banner"
+        aria-live="polite"
+      >
+        Some sources are unavailable: {{ state.failedSources().join(', ') }}.
+      </div>
+    }
+    @if (feedError(); as message) {
+      <div class="mb-4 border-l-2 border-coral bg-surface px-4 py-3 font-mono text-xs text-muted" aria-live="polite">
+        {{ message }}
+      </div>
+    }
+    <app-feed-filters
+      [availableSources]="availableSources"
+      [availableTags]="availableTags"
+      [selectedSources]="selectedSources"
+      [selectedTags]="selectedTags"
+      (sourceToggled)="state.toggleSourceFilter($event)"
+      (tagToggled)="state.toggleTagFilter($event)"
+      (filtersCleared)="state.clearFilters()"
+    />
+    @if (state.filteredArticles().length === 0) {
+      <section class="border border-line py-12 text-center">
+        <h2 class="font-serif text-xl text-text">No articles match the selected filters</h2>
+        <button
+          type="button"
+          class="mt-4 rounded border border-line px-4 py-1.5 font-mono text-xs text-muted transition-colors hover:border-cyan hover:text-cyan"
+          (click)="state.clearFilters()"
+        >Clear filters</button>
+      </section>
+    } @else {
+      <section data-testid="article-list" aria-label="News articles">
+        @for (article of state.filteredArticles(); track article.id) {
+          <app-article-card
+            [article]="article"
+            [isFavorite]="isFavorite(article.id)"
+            (favoriteToggled)="toggleFavorite($event)"
+          />
+        }
+      </section>
+    }
+  }
+</main>

@@ -1,7 +1,7 @@
 ---
 name: spec-writer
 description: Use this agent when the user provides a user story with acceptance criteria for a new feature. Creates comprehensive technical specifications for an Angular 22+ application, including component/state architecture, API contract, and testing requirements. Use proactively for any feature request requiring multi-layer implementation (API integration + client state + UI).
-tools: Glob, Grep, Read, Edit, Write, NotebookEdit, WebFetch, TodoWrite, WebSearch, LSP
+tools: vscode, execute, read, agent, edit, search, web, browser, todo
 model: opus
 color: pink
 ---

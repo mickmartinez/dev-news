@@ -1,0 +1,21 @@
+<article class="flex items-start justify-between gap-4 border-b border-line py-4 last:border-b-0">
+  <div class="min-w-0">
+    <span class="font-mono text-xs text-muted">{{ favorite().source }}</span>
+    <h2 class="mt-1 font-serif text-lg leading-snug text-text">
+      <a [href]="favorite().url" target="_blank" rel="noopener noreferrer" class="hover:text-cyan">{{ favorite().title }}</a>
+    </h2>
+    @if (favorite().author; as author) {
+      <p class="mt-1 text-xs text-muted">By {{ author }}</p>
+    }
+    @if (favorite().publishedAt; as publishedAt) {
+      <time class="text-xs text-muted" [attr.datetime]="publishedAt">{{ publishedAt | date: 'mediumDate' }}</time>
+    }
+  </div>
+  <button
+    type="button"
+    data-testid="remove-favorite"
+    class="shrink-0 rounded border border-line px-3 py-1.5 font-mono text-xs text-muted transition-colors hover:border-coral hover:text-coral"
+    [attr.aria-label]="'Remove ' + favorite().title + ' from Favorites'"
+    (click)="remove.emit(favorite().id)"
+  >Remove</button>
+</article>

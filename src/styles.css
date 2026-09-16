@@ -1,3 +1,43 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+@theme {
+  --color-bg: #0f1115;
+  --color-surface: #181b21;
+  --color-surface-raised: #21252d;
+  --color-line: #33383f;
+  --color-text: #e9ecef;
+  --color-muted: #949aa4;
+  --color-cyan: #5ed8d0;
+  --color-coral: #ff7968;
+  --color-amber: #f6c766;
+  --color-devto: #4f8fef;
+  --color-mslearn: #a78bfa;
+  --color-hackernews: #ff6a3d;
+  --color-github: #c9d1d9;
+  --font-serif: ui-serif, Georgia, 'Times New Roman', serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'JetBrains Mono', Consolas, monospace;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  min-width: 320px;
+  background-color: var(--color-bg);
+  background-image: repeating-linear-gradient(0deg, transparent 0, transparent 31px, rgb(94 216 208 / 3.5%) 32px);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-amber);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+

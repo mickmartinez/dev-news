@@ -1,6 +1,7 @@
 ---
 name: tdd-test-first
 description: Implements TDD "Red" phase for an Angular 22+ application by writing comprehensive failing unit tests with skeleton implementations, following Given-When-Then patterns and Angular's TestBed testing APIs.
+tools: [vscode, execute, read, agent, edit, search, web, browser, todo]
 model: sonnet
 color: red
 ---

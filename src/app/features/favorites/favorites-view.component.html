@@ -1,0 +1,29 @@
+<main class="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+  <header class="mb-6 border-b border-line pb-4">
+    <h1 class="font-serif text-2xl text-text">Favorites</h1>
+  </header>
+  @if (favoritesStore.lastError(); as error) {
+    <div
+      class="mb-4 flex items-center justify-between gap-3 border-l-2 border-coral bg-surface px-4 py-3 font-mono text-xs text-muted"
+      data-testid="favorites-error"
+      aria-live="polite"
+    >
+      <span>{{ error.message }}</span>
+      <button type="button" class="text-coral" (click)="favoritesStore.clearError()">Dismiss</button>
+    </div>
+  }
+  @if (favoritesStore.isLoading()) {
+    <div class="py-16 text-center font-mono text-sm text-muted" aria-live="polite">Loading favorites…</div>
+  } @else if (favoritesStore.favorites().length === 0) {
+    <section class="border border-line py-12 text-center" data-testid="favorites-empty-state">
+      <h2 class="font-serif text-xl text-text">No favorites saved yet</h2>
+      <p class="mt-2 text-sm text-muted">Save articles from the feed to keep them here.</p>
+    </section>
+  } @else {
+    <section aria-label="Saved favorites">
+      @for (favorite of favoritesStore.favorites(); track favorite.id) {
+        <app-favorite-list-item [favorite]="favorite" (remove)="removeFavorite($event)" />
+      }
+    </section>
+  }
+</main>
