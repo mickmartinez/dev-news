@@ -1,4 +1,5 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, Signal, computed, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import Dexie, { Table, liveQuery } from 'dexie';
 import { catchError, from, of } from 'rxjs';
@@ -19,25 +20,14 @@ export class FavoritesDatabase extends Dexie {
 
 @Injectable({ providedIn: 'root' })
 export class FavoritesStoreService {
-  private readonly db = new FavoritesDatabase();
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly db = this.isBrowser ? new FavoritesDatabase() : null;
 
   private readonly _lastError = signal<FavoritesStoreError | null>(null);
   readonly lastError = this._lastError.asReadonly();
 
   // Bridges the live Dexie query to a signal; undefined until the first emission resolves.
-  private readonly _liveFavorites = toSignal(
-    from(liveQuery(() => this.db.favorites.orderBy('favoritedAt').reverse().toArray())).pipe(
-      catchError((cause) => {
-        this._lastError.set({
-          operation: 'load',
-          articleId: null,
-          message: 'Unable to load favorites from local storage.',
-          cause,
-        });
-        return of<FavoriteRecord[]>([]);
-      }),
-    ),
-  );
+  private readonly _liveFavorites = this.createLiveFavorites();
 
   readonly favorites = computed<FavoriteRecord[]>(() => this._liveFavorites() ?? []);
   readonly isLoading = computed(() => this._liveFavorites() === undefined);
@@ -51,12 +41,13 @@ export class FavoritesStoreService {
 
   async add(article: UnifiedArticle): Promise<void> {
     try {
-      const existing = await this.db.favorites.get(article.id);
+      const database = this.getDatabase();
+      const existing = await database.favorites.get(article.id);
       if (existing) {
         return;
       }
       const record: FavoriteRecord = { ...article, favoritedAt: new Date().toISOString() };
-      await this.db.favorites.put(record);
+      await database.favorites.put(record);
       this._lastError.set(null);
     } catch (cause) {
       const error: FavoritesStoreError = {
@@ -72,8 +63,9 @@ export class FavoritesStoreService {
 
   async remove(id: string): Promise<void> {
     try {
+      const database = this.getDatabase();
       // Dexie's delete() on a missing key resolves without throwing, making this a natural no-op.
-      await this.db.favorites.delete(id);
+      await database.favorites.delete(id);
       this._lastError.set(null);
     } catch (cause) {
       const error: FavoritesStoreError = {
@@ -89,5 +81,32 @@ export class FavoritesStoreService {
 
   clearError(): void {
     this._lastError.set(null);
+  }
+
+  private createLiveFavorites(): Signal<FavoriteRecord[] | undefined> {
+    if (!this.db) {
+      return signal<FavoriteRecord[] | undefined>([]).asReadonly();
+    }
+
+    return toSignal(
+      from(liveQuery(() => this.db!.favorites.orderBy('favoritedAt').reverse().toArray())).pipe(
+        catchError((cause) => {
+          this._lastError.set({
+            operation: 'load',
+            articleId: null,
+            message: 'Unable to load favorites from local storage.',
+            cause,
+          });
+          return of<FavoriteRecord[]>([]);
+        }),
+      ),
+    );
+  }
+
+  private getDatabase(): FavoritesDatabase {
+    if (!this.db) {
+      throw new Error('Favorites are available only in a browser.');
+    }
+    return this.db;
   }
 }
