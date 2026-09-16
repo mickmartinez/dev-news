@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, forkJoin, map } from 'rxjs';
+import { Observable, forkJoin, map, catchError, of } from 'rxjs';
 import { DEVTO_TAGS } from '../../data/topic-tags';
 
 /** Shape of a single story hit from the Hacker News (Algolia) search API. */
@@ -27,9 +27,11 @@ export class HackerNewsFetcherService {
 
   fetchArticles(): Observable<HackerNewsHit[]> {
     const requests = DEVTO_TAGS.map((tag) =>
-      this.http.get<HackerNewsSearchResponse>(HN_ALGOLIA_API, {
-        params: { query: tag, tags: 'story', hitsPerPage: 20 },
-      }),
+      this.http
+        .get<HackerNewsSearchResponse>(HN_ALGOLIA_API, {
+          params: { query: tag, tags: 'story', hitsPerPage: 20 },
+        })
+        .pipe(catchError(() => of<HackerNewsSearchResponse>({ hits: [] }))),
     );
 
     return forkJoin(requests).pipe(
