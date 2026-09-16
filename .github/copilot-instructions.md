@@ -17,3 +17,23 @@
 ## 4. CI/CD & Automation
 - Include a GitHub Actions workflow (`.github/workflows/ci.yml`) to build the project and execute all unit tests.
 - Ensure all tests run headlessly (e.g., using Karma with ChromeHeadless or the native Angular 22 test runner) so the CI job succeeds without a GUI environment.
+
+## 5. Mandatory Agent Delegation (Strict Constraint)
+Every feature MUST be built through the following agent pipeline, in order. Do not hand-write
+artifacts that a mandated agent is responsible for producing — invoke the agent instead.
+
+1. **`user-story-writer`** — produces the user story and acceptance criteria in
+   `docs/user-stories/` before any technical design begins.
+2. **`spec-writer`** — produces the technical specification in `docs/specs/`, referencing the
+   user story from step 1.
+3. **`angular-model-generator`** — produces the TypeScript models/interfaces and Angular
+   data-access services for the feature, following the spec from step 2.
+4. Implementation (components, storage, wiring) proceeds against the approved spec.
+5. **`implementation-validator`** — after implementation, validates the code against the
+   technical spec and reports any gaps before the feature is considered done.
+6. **Testing** — unit tests are produced via the TDD agent pair, not hand-written directly:
+   - **`tdd-test-first`** writes the failing tests (Red phase).
+   - **`tdd-implementation`** makes them pass (Green phase).
+
+This pipeline applies to every feature, including retroactively revising any work completed
+before this rule was added.
