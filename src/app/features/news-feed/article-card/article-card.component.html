@@ -1,0 +1,36 @@
+<article class="flex gap-4 border-b border-line py-5 first:pt-0 last:border-b-0">
+  <span class="w-1 shrink-0 self-stretch rounded-full" [class]="sourceBarClass()" aria-hidden="true"></span>
+  <div class="min-w-0 flex-1">
+    <div class="flex items-start justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-muted">
+        <span data-testid="source-badge" [class]="sourceTextClass()">{{ sourceLabel(article().source) }}</span>
+        @if (article().metric; as metric) {
+          <span data-testid="article-metric">{{ metric.label }} {{ metric.value }}</span>
+        }
+        @if (article().publishedAt; as publishedAt) {
+          <time data-testid="published-date" [attr.datetime]="publishedAt">{{ publishedAt | date: 'MMM d' }}</time>
+        }
+      </div>
+      <button
+        type="button"
+        data-testid="favorite-toggle"
+        class="shrink-0 text-lg leading-none text-amber transition-transform hover:scale-110"
+        [attr.aria-pressed]="isFavorite()"
+        [attr.aria-label]="isFavorite() ? 'Remove from Favorites' : 'Add to Favorites'"
+        (click)="favoriteToggled.emit(article())"
+      >{{ isFavorite() ? '★' : '☆' }}</button>
+    </div>
+    <h2 class="mt-1.5 font-serif text-lg leading-snug text-text">
+      <a [href]="article().url" target="_blank" rel="noopener noreferrer" class="hover:text-cyan">{{ article().title }}</a>
+    </h2>
+    @if (article().summary; as summary) {
+      <p class="mt-1.5 max-w-prose text-sm text-muted">{{ summary }}</p>
+    }
+    @if (article().author; as author) {
+      <p class="mt-1.5 text-xs text-muted">By {{ author }}</p>
+    }
+  </div>
+  @if (article().thumbnailUrl; as thumbnailUrl) {
+    <img [ngSrc]="thumbnailUrl" width="96" height="96" alt="" class="hidden h-24 w-24 shrink-0 rounded object-cover sm:block" />
+  }
+</article>
