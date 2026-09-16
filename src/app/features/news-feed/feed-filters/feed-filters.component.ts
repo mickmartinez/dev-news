@@ -1,21 +1,21 @@
-import { ChangeDetectionStrategy, Component, OnInit, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { ArticleSource } from '../../../models/article.model';
 
 @Component({
   selector: 'app-feed-filters',
-  template: '',
+  templateUrl: './feed-filters.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FeedFiltersComponent implements OnInit {
+export class FeedFiltersComponent {
   readonly availableSources = input.required<ArticleSource[]>();
   readonly availableTags = input.required<string[]>();
-  readonly selectedSources = input.required<ArticleSource[]>();
-  readonly selectedTags = input.required<string[]>();
+  readonly selectedSources = input<ArticleSource[]>([]);
+  readonly selectedTags = input<string[]>([]);
   readonly sourceToggled = output<ArticleSource>();
   readonly tagToggled = output<string>();
   readonly filtersCleared = output<void>();
 
-  ngOnInit(): void {
-    throw new Error('Not implemented: FeedFiltersComponent');
+  clearFilters(): void {
+    this.filtersCleared.emit();
   }
 }

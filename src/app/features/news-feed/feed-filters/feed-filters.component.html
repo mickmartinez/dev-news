@@ -1,0 +1,35 @@
+<section aria-label="Feed filters" class="flex flex-col gap-4 border-b border-line py-4 sm:flex-row sm:items-start sm:justify-between">
+  <div class="flex flex-1 flex-col gap-3">
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="font-mono text-xs text-muted">Sources</span>
+      @for (source of availableSources(); track source) {
+        <button
+          type="button"
+          [attr.data-testid]="'source-' + source"
+          [attr.aria-pressed]="selectedSources().includes(source)"
+          class="rounded-full border border-line px-3 py-1 font-mono text-xs text-muted transition-colors hover:border-cyan hover:text-text aria-pressed:border-cyan aria-pressed:bg-cyan/10 aria-pressed:text-cyan"
+          (click)="sourceToggled.emit(source)"
+        >{{ source }}</button>
+      }
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="font-mono text-xs text-muted">Topics</span>
+      @for (tag of availableTags(); track tag) {
+        <button
+          type="button"
+          [attr.data-testid]="'tag-' + tag"
+          [attr.aria-pressed]="selectedTags().includes(tag.toLowerCase())"
+          class="rounded-full border border-line px-3 py-1 font-mono text-xs text-muted transition-colors hover:border-cyan hover:text-text aria-pressed:border-cyan aria-pressed:bg-cyan/10 aria-pressed:text-cyan"
+          (click)="tagToggled.emit(tag)"
+        >{{ tag }}</button>
+      }
+    </div>
+  </div>
+  <button
+    type="button"
+    data-testid="clear-filters"
+    class="shrink-0 rounded border border-line px-3 py-1.5 font-mono text-xs text-muted transition-colors hover:border-coral hover:text-coral disabled:cursor-not-allowed disabled:opacity-40"
+    [disabled]="selectedSources().length === 0 && selectedTags().length === 0"
+    (click)="clearFilters()"
+  >Clear filters</button>
+</section>
