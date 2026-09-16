@@ -1,7 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import Dexie, { Table, liveQuery } from 'dexie';
-import { catchError, of } from 'rxjs';
+import { catchError, from, of } from 'rxjs';
 import { UnifiedArticle } from '../models/article.model';
 import { FavoriteRecord, FavoritesStoreError } from '../models/favorite.model';
 
@@ -26,7 +26,7 @@ export class FavoritesStoreService {
 
   // Bridges the live Dexie query to a signal; undefined until the first emission resolves.
   private readonly _liveFavorites = toSignal(
-    liveQuery(() => this.db.favorites.orderBy('favoritedAt').reverse().toArray()).pipe(
+    from(liveQuery(() => this.db.favorites.orderBy('favoritedAt').reverse().toArray())).pipe(
       catchError((cause) => {
         this._lastError.set({
           operation: 'load',
