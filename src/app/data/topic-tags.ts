@@ -1,5 +1,5 @@
 /** Dev.to tag slugs to fetch, per docs/PRODUCT_SPEC.md section 4 (Epic A). */
-export const DEVTO_TAGS: readonly string[] = [
+export const DEVNEWS_TAGS: readonly string[] = [
   'ai',
   'dotnet',
   'angular',
@@ -8,18 +8,20 @@ export const DEVTO_TAGS: readonly string[] = [
   'anthropic',
   'claude',
   'github',
-];
-
-/** Microsoft Learn AI certification paths/SDKs to filter the catalog by. */
-export const MSLEARN_TOPICS: readonly string[] = [
-  'Foundry',
-  'Foundry IQ',
-  'Work IQ',
-  'AI Search',
-  'Speech',
-  'Video Indexer',
-  'Language',
-  'Agents',
-  'Workflows',
-  'Agent Framework',
+  'openai',
+  'vercel',
+  'nodejs',
+  'nestjs',
+  'supabase',
+  'foundry',
+  'foundryIQ',
+  'workIQ',
+  'ai search',
+  'speech',
+  'video indexer',
+  'language',
+  'agents',
+  'workflows',
+  'agent framework',
+  'cognitive services'
 ];

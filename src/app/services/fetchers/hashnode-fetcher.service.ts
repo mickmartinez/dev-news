@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin, map, catchError, of } from 'rxjs';
-import { DEVTO_TAGS } from '../../data/topic-tags';
+import { DEVNEWS_TAGS } from '../../data/topic-tags';
 
 /** Shape of a single post as returned by the Hashnode public GraphQL API. */
 export interface HashnodePost {
@@ -48,7 +48,7 @@ export class HashnodeFetcherService {
   private readonly http = inject(HttpClient);
 
   fetchArticles(): Observable<HashnodePost[]> {
-    const requests = DEVTO_TAGS.map((slug) =>
+    const requests = DEVNEWS_TAGS.map((slug) =>
       this.http
         .post<HashnodeTagPostsResponse>(HASHNODE_GRAPHQL_API, {
           query: POSTS_BY_TAG_QUERY,
