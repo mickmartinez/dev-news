@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { DEVTO_TAGS } from '../../data/topic-tags';
+import { DEVNEWS_TAGS } from '../../data/topic-tags';
 
 /** Shape of a single repository as returned by the GitHub Search API. */
 export interface GitHubRepo {
@@ -31,7 +31,7 @@ export class GitHubFetcherService {
   private readonly http = inject(HttpClient);
 
   fetchArticles(): Observable<GitHubRepo[]> {
-    const topicQuery = DEVTO_TAGS.map((tag) => `topic:${tag}`).join(' OR ');
+    const topicQuery = DEVNEWS_TAGS.map((tag) => `topic:${tag}`).join(' OR ');
 
     return this.http
       .get<GitHubSearchResponse>(GITHUB_SEARCH_API, {

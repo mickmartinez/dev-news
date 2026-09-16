@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { MSLEARN_TOPICS } from '../../data/topic-tags';
+import { DEVNEWS_TAGS } from '../../data/topic-tags';
 
 /** Shape of a single learning path/module entry from the Microsoft Learn Catalog API. */
 export interface MsLearnCatalogEntry {
@@ -38,6 +38,6 @@ export class MsLearnFetcherService {
 
   private matchesTopic(entry: MsLearnCatalogEntry): boolean {
     const haystack = `${entry.title} ${entry.summary ?? ''}`.toLowerCase();
-    return MSLEARN_TOPICS.some((topic) => haystack.includes(topic.toLowerCase()));
+    return DEVNEWS_TAGS.some((topic) => haystack.includes(topic.toLowerCase()));
   }
 }

@@ -47,7 +47,7 @@
         >Clear filters</button>
       </section>
     } @else {
-      <section data-testid="article-list" aria-label="News articles">
+      <section data-testid="article-list" aria-label="News articles" class="pt-4">
         @for (article of state.filteredArticles(); track article.id) {
           <app-article-card
             [article]="article"
