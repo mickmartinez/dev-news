@@ -57,6 +57,7 @@ export class FavoritesStoreService {
       }
       const record: FavoriteRecord = { ...article, favoritedAt: new Date().toISOString() };
       await this.db.favorites.put(record);
+      this._lastError.set(null);
     } catch (cause) {
       const error: FavoritesStoreError = {
         operation: 'add',
@@ -73,6 +74,7 @@ export class FavoritesStoreService {
     try {
       // Dexie's delete() on a missing key resolves without throwing, making this a natural no-op.
       await this.db.favorites.delete(id);
+      this._lastError.set(null);
     } catch (cause) {
       const error: FavoritesStoreError = {
         operation: 'remove',
