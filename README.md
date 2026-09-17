@@ -1,59 +1,93 @@
-# DevNews
+# 📰 Personal Developer News Portal
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.8.
+A privacy-first, zero-backend developer news aggregator built with **Angular 22** and **IndexedDB**. 
 
-## Development server
+This application aggregates tech news in real time across 5 distinct APIs and normalizes them into a unified feed. Articles can be saved to a local browser database without requiring external account creation or server-side persistence.
 
-To start a local development server, run:
+---
 
-```bash
-ng serve
-```
+## ✨ Features
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- **Multi-Source Real-Time Aggregation:** Fetches content on load from 5 developer APIs:
+  - **Dev.to REST API:** Topics covering AI, .NET, Angular, Testing, Azure, Anthropic, Claude, and GitHub.
+  - **Microsoft Learn API/RSS:** AI Certification paths (Foundry, Work IQ, AI Search, Speech, Language, Agents, Agent Framework) and .NET SDKs.
+  - **Hacker News (Algolia API):** Real-time top tech stories matching core topic tags.
+  - **Hashnode GraphQL API:** Community developer articles matching topic tags.
+  - **GitHub Search API:** Recently trending repositories matching core topics.
+- **Unified Data Schema:** Maps diverse API payloads into a consistent `UnifiedArticle` UI contract.
+- **Offline Favorites Storage:** Uses **Dexie.js (IndexedDB)** for local, in-browser persistence of saved articles.
+- **Modern Angular Architecture:** Built entirely with Angular 22 Standalone Components, Signal-driven state, and strict typing.
+- **Automated CI/CD Pipeline:** Includes GitHub Actions for automated linting, headless unit testing, and production builds.
 
-## Code scaffolding
+---
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## 🛠 Tech Stack
 
-```bash
-ng generate component component-name
-```
+- **Framework:** Angular 22 (Standalone Components)
+- **Database:** IndexedDB via [Dexie.js](https://dexie.org/)
+- **Styling:** Tailwind CSS
+- **CI/CD:** GitHub Actions (`.github/workflows/ci.yml`)
+- **Testing:** Jasmine & Karma (Headless Chrome)
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+---
 
-```bash
-ng generate --help
-```
+## 🚀 Getting Started
 
-## Building
+### Prerequisites
 
-To build the project run:
+- **Node.js:** v20.x or higher
+- **npm:** v10.x or higher
+- **Angular CLI:** v22.x 
 
-```bash
-ng build
-```
+### Installation
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+1. Clone the repository:
+   git clone https://github.com/your-username/dev-news-portal.git
+   cd dev-news-portal
 
-## Running unit tests
+2. Install dependencies:
+   npm install
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+3. Start the development server:
+   npm start
+   
+   Navigate to http://localhost:4200/ in your browser.
 
-```bash
-ng test
-```
+---
 
-## Running end-to-end tests
+## 🧪 Testing & CI/CD
 
-For end-to-end (e2e) testing, run:
+Run the unit test suite locally:
+npm test
 
-```bash
-ng e2e
-```
+To execute tests headlessly (as configured in the GitHub Actions pipeline):
+ng test --no-watch --no-progress --browsers=ChromeHeadless
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+To verify the production build:
+npm run build
 
-## Additional Resources
+---
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 🤖 Multi-Agent Workspace Setup
+
+This project was developed using an agentic workflow in GitHub Copilot Workspace.
+
+### Directory Structure for Agents
+
+.
+├── .github/
+│   ├── copilot-instructions.md   # Global architecture & commit rules
+│   ├── prompts/
+│   │   └── init-portal.prompt.md # Initial build orchestration prompt
+│   └── workflows/
+│       └── ci.yml               # GitHub Actions CI configuration
+└── docs/
+    └── PRODUCT_SPEC.md          # Generated product specifications
+
+
+### Agent Model Assignment Strategy
+- **Claude Sonnet 5 (High Thinking Effort):** Product Specifications, Architecture, Data Layer, and API Normalization.
+- **GPT-5.6 Terra (Medium Thinking Effort):** UI Components, State Streams, Unit Tests, and CI Workflow.
+- **GPT-5.6 Luna (Low Thinking Effort):** Atomic Git Commit formatting and execution.
+
+---
