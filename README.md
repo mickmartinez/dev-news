@@ -15,6 +15,7 @@ This application aggregates tech news in real time across 5 distinct APIs and no
   - **Hashnode GraphQL API:** Community developer articles matching topic tags.
   - **GitHub Search API:** Recently trending repositories matching core topics.
 - **Unified Data Schema:** Maps diverse API payloads into a consistent `UnifiedArticle` UI contract.
+- **Agentic Workflow:** It uses 6 different agents to implement each feature: User Story Writer, Spec Writer, TDD Test First (Red Cases), TDD Implementation and Implementation Validator.
 - **Offline Favorites Storage:** Uses **Dexie.js (IndexedDB)** for local, in-browser persistence of saved articles.
 - **Modern Angular Architecture:** Built entirely with Angular 22 Standalone Components, Signal-driven state, and strict typing.
 - **Automated CI/CD Pipeline:** Includes GitHub Actions for automated linting, headless unit testing, and production builds.
@@ -42,7 +43,7 @@ This application aggregates tech news in real time across 5 distinct APIs and no
 ### Installation
 
 1. Clone the repository:
-   git clone https://github.com/your-username/dev-news-portal.git
+   git clone https://github.com/your-username/dev-news.git
    cd dev-news-portal
 
 2. Install dependencies:
@@ -77,8 +78,6 @@ This project was developed using an agentic workflow in GitHub Copilot Workspace
 .
 ├── .github/
 │   ├── copilot-instructions.md   # Global architecture & commit rules
-│   ├── prompts/
-│   │   └── init-portal.prompt.md # Initial build orchestration prompt
 │   └── workflows/
 │       └── ci.yml               # GitHub Actions CI configuration
 └── docs/
@@ -89,5 +88,12 @@ This project was developed using an agentic workflow in GitHub Copilot Workspace
 - **Claude Sonnet 5 (High Thinking Effort):** Product Specifications, Architecture, Data Layer, and API Normalization.
 - **GPT-5.6 Terra (Medium Thinking Effort):** UI Components, State Streams, Unit Tests, and CI Workflow.
 - **GPT-5.6 Luna (Low Thinking Effort):** Atomic Git Commit formatting and execution.
+
+### Pending
+
+- **Fix Github and Hashnode feeds:** No articles found.
+- **Fix MSLearn filters:** MSLearn Feed shows articles but nothing when a filter is applied.
+- Individual favorite cards should look like the ones in the News Feed (Tailwind).
+
 
 ---
