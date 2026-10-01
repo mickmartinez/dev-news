@@ -37,6 +37,7 @@ const hackerNewsHit = (overrides: Partial<HackerNewsHit> = {}): HackerNewsHit =>
   points: 100,
   created_at: '2026-01-03T00:00:00Z',
   _tags: ['STORY', 'AUTHOR_pg'],
+  matchedTopics: ['AI'],
   ...overrides,
 });
 
@@ -175,7 +176,7 @@ describe('ArticleNormalizerService', () => {
   });
 
   describe('normalizeHackerNews', () => {
-    it('GivenHackerNewsHit_WhenNormalized_ThenMapsFieldsWithNamespacedIdAndLowercasedTagsAndNullSummary', () => {
+    it('GivenHackerNewsHit_WhenNormalized_ThenMapsFieldsWithNamespacedIdAndLowercasedMatchedTopicTagsAndNullSummary', () => {
       // Arrange
       const hits = [hackerNewsHit()];
 
@@ -192,7 +193,7 @@ describe('ArticleNormalizerService', () => {
           summary: null,
           author: 'pg',
           publishedAt: '2026-01-03T00:00:00Z',
-          tags: ['story', 'author_pg'],
+          tags: ['ai'],
           thumbnailUrl: null,
           metric: { label: 'points', value: 100 },
         },
@@ -239,6 +240,17 @@ describe('ArticleNormalizerService', () => {
 
       // Assert
       expect(result).toEqual([]);
+    });
+
+    it('GivenHitWithMultipleMatchedTopics_WhenNormalized_ThenTagsContainsAllLowercasedMatchedTopics', () => {
+      // Arrange
+      const hits = [hackerNewsHit({ matchedTopics: ['Azure', 'AI'] })];
+
+      // Act
+      const result = service.normalizeHackerNews(hits);
+
+      // Assert
+      expect(result[0].tags).toEqual(['azure', 'ai']);
     });
   });
 

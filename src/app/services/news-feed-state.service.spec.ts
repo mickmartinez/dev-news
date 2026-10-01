@@ -157,7 +157,7 @@ describe('NewsFeedStateService', () => {
     expect(disabled).toBe(false);
   });
 
-  it('GivenOnlyHackerNewsSelected_WhenIsTagFilteringDisabledRead_ThenTrue', () => {
+  it('GivenOnlyHackerNewsSelected_WhenIsTagFilteringDisabledRead_ThenFalse', () => {
     // Arrange
     service.toggleSourceFilter('hackernews');
 
@@ -165,7 +165,7 @@ describe('NewsFeedStateService', () => {
     const disabled = service.isTagFilteringDisabled();
 
     // Assert
-    expect(disabled).toBe(true);
+    expect(disabled).toBe(false);
   });
 
   it('GivenOnlyMsLearnSelected_WhenIsTagFilteringDisabledRead_ThenFalse', () => {
@@ -203,14 +203,11 @@ describe('NewsFeedStateService', () => {
     expect(disabled).toBe(false);
   });
 
-  it('GivenOnlyHackerNewsSelectedAndTagsSelected_WhenFilteredArticlesRead_ThenTagCriteriaIsIgnoredAndMatchingHackerNewsArticlesAreReturned', () => {
+  it('GivenOnlyHackerNewsSelectedAndATopicTagSelected_WhenFilteredArticlesRead_ThenOnlyHackerNewsArticlesMatchingThatTopicAreReturned', () => {
     // Arrange
     fetchFeed.mockReturnValue(
       of<NewsFeedResult>({
-        articles: [
-          article('hn-1', 'hackernews', ['story', 'ask_hn']),
-          article('hn-2', 'hackernews', ['story', 'author_jdoe']),
-        ],
+        articles: [article('hn-angular', 'hackernews', ['angular']), article('hn-azure', 'hackernews', ['azure'])],
         failedSources: [],
       }),
     );
@@ -222,7 +219,7 @@ describe('NewsFeedStateService', () => {
     const result = service.filteredArticles();
 
     // Assert
-    expect(result.map((item) => item.id)).toEqual(['hn-1', 'hn-2']);
+    expect(result.map((item) => item.id)).toEqual(['hn-angular']);
   });
 
   it('GivenOnlyMsLearnSelectedAndATopicTagSelected_WhenFilteredArticlesRead_ThenOnlyMsLearnArticlesMatchingThatTopicAreReturned', () => {
@@ -262,84 +259,16 @@ describe('NewsFeedStateService', () => {
     expect(result.map((item) => item.id)).toEqual(['hn-1']);
   });
 
-  it('GivenOnlyHackerNewsSelectedAndTagsSelected_WhenIsTagFilteringDisabledBecomesTrue_ThenSelectedTagsSignalRemainsUnchanged', () => {
+  it('GivenNoSourcesAreCurrentlyUntaggable_WhenAnySingleSourceIsSelected_ThenIsTagFilteringDisabledIsAlwaysFalse', () => {
     // Arrange
-    service.toggleTagFilter('angular');
-
-    // Act
+    service.toggleSourceFilter('hackernews');
+    expect(service.isTagFilteringDisabled()).toBe(false);
     service.toggleSourceFilter('hackernews');
 
-    // Assert
-    expect(service.isTagFilteringDisabled()).toBe(true);
-    expect(service.selectedTags()).toEqual(['angular']);
-  });
-
-  it('GivenOnlyHackerNewsSelectedAndTagsSelected_WhenAnotherSourceIsAlsoSelected_ThenFilteredArticlesReapplyThePreviouslySelectedTags', () => {
-    // Arrange
-    fetchFeed.mockReturnValue(
-      of<NewsFeedResult>({
-        articles: [
-          article('hn-1', 'hackernews', ['story']),
-          article('devto-angular', 'devto', ['angular']),
-          article('devto-react', 'devto', ['react']),
-        ],
-        failedSources: [],
-      }),
-    );
-    service.loadFeed();
-    service.toggleSourceFilter('hackernews');
-    service.toggleTagFilter('angular');
-    expect(service.isTagFilteringDisabled()).toBe(true);
-
     // Act
-    service.toggleSourceFilter('devto');
+    service.toggleSourceFilter('mslearn');
 
     // Assert
     expect(service.isTagFilteringDisabled()).toBe(false);
-    expect(service.filteredArticles().map((item) => item.id)).toEqual(['devto-angular']);
-  });
-
-  it('GivenOnlyHackerNewsSelectedAndTagsSelected_WhenHackerNewsIsDeselectedLeavingZeroSources_ThenFilteredArticlesReapplyThePreviouslySelectedTagsAcrossAllSources', () => {
-    // Arrange
-    fetchFeed.mockReturnValue(
-      of<NewsFeedResult>({
-        articles: [
-          article('hn-1', 'hackernews', ['story']),
-          article('devto-angular', 'devto', ['angular']),
-          article('devto-react', 'devto', ['react']),
-        ],
-        failedSources: [],
-      }),
-    );
-    service.loadFeed();
-    service.toggleSourceFilter('hackernews');
-    service.toggleTagFilter('angular');
-    expect(service.isTagFilteringDisabled()).toBe(true);
-
-    // Act
-    service.toggleSourceFilter('hackernews');
-
-    // Assert
-    expect(service.isTagFilteringDisabled()).toBe(false);
-    expect(service.filteredArticles().map((item) => item.id)).toEqual(['devto-angular']);
-  });
-
-  it('GivenSourcesChangeFromAllToHackerNewsOnly_WhenIsTagFilteringDisabledRead_ThenItRecomputesImmediatelyWithoutAdditionalAction', () => {
-    // Arrange
-    for (const source of service.availableSources) {
-      service.toggleSourceFilter(source);
-    }
-    expect(service.isTagFilteringDisabled()).toBe(false);
-
-    // Act
-    for (const source of service.availableSources) {
-      if (source !== 'hackernews') {
-        service.toggleSourceFilter(source);
-      }
-    }
-
-    // Assert
-    expect(service.isTagFilteringDisabled()).toBe(true);
-    expect(service.selectedSources()).toEqual(['hackernews']);
   });
 });
