@@ -25,6 +25,7 @@ const msLearnEntry = (overrides: Partial<MsLearnCatalogEntry> = {}): MsLearnCata
   url: 'https://learn.microsoft.com/paths/1',
   last_modified: '2026-01-02T00:00:00Z',
   duration_in_minutes: 60,
+  matchedTopics: ['AI'],
   ...overrides,
 });
 
@@ -117,7 +118,7 @@ describe('ArticleNormalizerService', () => {
   });
 
   describe('normalizeMsLearn', () => {
-    it('GivenMsLearnEntry_WhenNormalized_ThenMapsFieldsWithNamespacedIdAndNullAuthorAndEmptyTagsAndNullMetric', () => {
+    it('GivenMsLearnEntry_WhenNormalized_ThenMapsFieldsWithNamespacedIdAndNullAuthorAndLowercasedMatchedTopicTagsAndNullMetric', () => {
       // Arrange
       const entries = [msLearnEntry()];
 
@@ -134,7 +135,7 @@ describe('ArticleNormalizerService', () => {
           summary: 'Learn the basics of building AI apps.',
           author: null,
           publishedAt: '2026-01-02T00:00:00Z',
-          tags: [],
+          tags: ['ai'],
           thumbnailUrl: null,
           metric: null,
         },
@@ -159,6 +160,17 @@ describe('ArticleNormalizerService', () => {
 
       // Assert
       expect(result).toEqual([]);
+    });
+
+    it('GivenMsLearnEntryWithMultipleMatchedTopics_WhenNormalized_ThenTagsContainsAllLowercasedMatchedTopics', () => {
+      // Arrange
+      const entries = [msLearnEntry({ matchedTopics: ['Azure', 'AI'] })];
+
+      // Act
+      const result = service.normalizeMsLearn(entries);
+
+      // Assert
+      expect(result[0].tags).toEqual(['azure', 'ai']);
     });
   });
 

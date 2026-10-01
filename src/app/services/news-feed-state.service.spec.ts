@@ -168,7 +168,7 @@ describe('NewsFeedStateService', () => {
     expect(disabled).toBe(true);
   });
 
-  it('GivenOnlyMsLearnSelected_WhenIsTagFilteringDisabledRead_ThenTrue', () => {
+  it('GivenOnlyMsLearnSelected_WhenIsTagFilteringDisabledRead_ThenFalse', () => {
     // Arrange
     service.toggleSourceFilter('mslearn');
 
@@ -176,7 +176,7 @@ describe('NewsFeedStateService', () => {
     const disabled = service.isTagFilteringDisabled();
 
     // Assert
-    expect(disabled).toBe(true);
+    expect(disabled).toBe(false);
   });
 
   it('GivenMsLearnPlusAnotherSourceSelected_WhenIsTagFilteringDisabledRead_ThenFalse', () => {
@@ -191,7 +191,7 @@ describe('NewsFeedStateService', () => {
     expect(disabled).toBe(false);
   });
 
-  it('GivenHackerNewsAndMsLearnBothSelectedAndNothingElse_WhenIsTagFilteringDisabledRead_ThenTrue', () => {
+  it('GivenHackerNewsAndMsLearnBothSelectedAndNothingElse_WhenIsTagFilteringDisabledRead_ThenFalse', () => {
     // Arrange
     service.toggleSourceFilter('hackernews');
     service.toggleSourceFilter('mslearn');
@@ -200,7 +200,7 @@ describe('NewsFeedStateService', () => {
     const disabled = service.isTagFilteringDisabled();
 
     // Assert
-    expect(disabled).toBe(true);
+    expect(disabled).toBe(false);
   });
 
   it('GivenOnlyHackerNewsSelectedAndTagsSelected_WhenFilteredArticlesRead_ThenTagCriteriaIsIgnoredAndMatchingHackerNewsArticlesAreReturned', () => {
@@ -225,11 +225,11 @@ describe('NewsFeedStateService', () => {
     expect(result.map((item) => item.id)).toEqual(['hn-1', 'hn-2']);
   });
 
-  it('GivenOnlyMsLearnSelectedAndTagsSelected_WhenFilteredArticlesRead_ThenTagCriteriaIsIgnoredAndMsLearnArticlesAreReturned', () => {
+  it('GivenOnlyMsLearnSelectedAndATopicTagSelected_WhenFilteredArticlesRead_ThenOnlyMsLearnArticlesMatchingThatTopicAreReturned', () => {
     // Arrange
     fetchFeed.mockReturnValue(
       of<NewsFeedResult>({
-        articles: [article('ms-1', 'mslearn', []), article('ms-2', 'mslearn', [])],
+        articles: [article('ms-angular', 'mslearn', ['angular']), article('ms-azure', 'mslearn', ['azure'])],
         failedSources: [],
       }),
     );
@@ -241,7 +241,7 @@ describe('NewsFeedStateService', () => {
     const result = service.filteredArticles();
 
     // Assert
-    expect(result.map((item) => item.id)).toEqual(['ms-1', 'ms-2']);
+    expect(result.map((item) => item.id)).toEqual(['ms-angular']);
   });
 
   it('GivenOnlyHackerNewsSelectedWithNoTagsSelected_WhenFilteredArticlesRead_ThenOnlySourceFilterAppliesAndResultIsNotForcedEmpty', () => {
