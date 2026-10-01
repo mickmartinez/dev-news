@@ -29,10 +29,11 @@ export class NewsFeedStateService {
     const failedCount = this.failedSourceState().length;
     return failedCount > 0 && failedCount < this.availableSources.length;
   });
-  /** HackerNews tags are Algolia metadata (story/author/comment), never DEVNEWS_TAGS topics, so topic filtering can never match when HN is the only selected source. */
+  /** HackerNews tags are Algolia metadata, not DEVNEWS_TAGS topics, and MS Learn articles always have an empty tags array — topic filtering can never match when every selected source is untaggable. */
+  private static readonly UNTAGGABLE_SOURCES: ReadonlySet<ArticleSource> = new Set(['hackernews', 'mslearn']);
   readonly isTagFilteringDisabled: Signal<boolean> = computed(() => {
     const sources = this.selectedSourceState();
-    return sources.length === 1 && sources[0] === 'hackernews';
+    return sources.length > 0 && sources.every((source) => NewsFeedStateService.UNTAGGABLE_SOURCES.has(source));
   });
   readonly filteredArticles: Signal<UnifiedArticle[]> = computed(() => {
     const sources = this.selectedSourceState();
