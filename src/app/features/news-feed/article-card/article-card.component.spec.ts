@@ -3,7 +3,7 @@ import { UnifiedArticle } from '../../../models/article.model';
 import { ArticleCardComponent } from './article-card.component';
 
 const article: UnifiedArticle = {
-  id: 'hashnode-1', source: 'hashnode', title: 'Useful article', url: 'https://example.test',
+  id: 'github-1', source: 'github', title: 'Useful article', url: 'https://example.test',
   summary: 'Summary', author: null, publishedAt: null, tags: [], thumbnailUrl: null, metric: null,
 };
 
@@ -23,7 +23,7 @@ describe('ArticleCardComponent', () => {
 
     // Assert
     expect(fixture.nativeElement.textContent).toContain('Useful article');
-    expect(fixture.nativeElement.querySelector('[data-testid="source-badge"]')?.textContent).toContain('Hashnode');
+    expect(fixture.nativeElement.querySelector('[data-testid="source-badge"]')?.textContent).toContain('GitHub');
   });
 
   it('GivenNullMetricAndDate_WhenRendered_ThenMetricAndDateAreOmitted', () => {

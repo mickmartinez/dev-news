@@ -29,20 +29,28 @@ export class NewsFeedStateService {
     const failedCount = this.failedSourceState().length;
     return failedCount > 0 && failedCount < this.availableSources.length;
   });
+  /** No selectable source is currently untaggable — reserved for sources whose normalizer can't yet derive real DEVNEWS_TAGS topic tags. */
+  private static readonly UNTAGGABLE_SOURCES: ReadonlySet<ArticleSource> = new Set();
+  readonly isTagFilteringDisabled: Signal<boolean> = computed(() => {
+    const sources = this.selectedSourceState();
+    return sources.length > 0 && sources.every((source) => NewsFeedStateService.UNTAGGABLE_SOURCES.has(source));
+  });
   readonly filteredArticles: Signal<UnifiedArticle[]> = computed(() => {
     const sources = this.selectedSourceState();
     const tags = this.selectedTagState();
+    const tagFilteringDisabled = this.isTagFilteringDisabled();
     return this.articleState().filter(
       (article) =>
         (sources.length === 0 || sources.includes(article.source)) &&
-        (tags.length === 0 || tags.some((tag) => article.tags.includes(tag.toLowerCase()))),
+        (tagFilteringDisabled ||
+          tags.length === 0 ||
+          tags.some((tag) => article.tags.includes(tag.toLowerCase()))),
     );
   });
   readonly availableSources: readonly ArticleSource[] = [
     'devto',
     'mslearn',
     'hackernews',
-    'hashnode',
     'github',
   ];
   readonly availableTags: readonly string[] = [...DEVNEWS_TAGS].map((tag) => tag.toLowerCase());

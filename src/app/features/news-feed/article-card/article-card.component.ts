@@ -6,7 +6,6 @@ const SOURCE_STYLES: Record<UnifiedArticle['source'], { label: string; bar: stri
   devto: { label: 'Dev.to', bar: 'bg-devto', text: 'text-devto' },
   mslearn: { label: 'Microsoft Learn', bar: 'bg-mslearn', text: 'text-mslearn' },
   hackernews: { label: 'Hacker News', bar: 'bg-hackernews', text: 'text-hackernews' },
-  hashnode: { label: 'Hashnode', bar: 'bg-cyan', text: 'text-cyan' },
   github: { label: 'GitHub', bar: 'bg-github', text: 'text-github' },
 };
 

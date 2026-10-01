@@ -3,12 +3,12 @@
 ## 1. Overview
 
 The Personal Developer News Portal is a single-page Angular 22 application that aggregates
-developer-relevant content from five external sources into one unified, real-time news feed.
+developer-relevant content from four external sources into one unified, real-time news feed.
 Users can browse the aggregated feed and save articles locally as "Favorites" for later
 reading, persisted offline via IndexedDB (Dexie.js).
 
 ### 1.1 Goals
-- Provide a single pane of glass over Dev.to, Microsoft Learn, Hacker News, Hashnode, and
+- Provide a single pane of glass over Dev.to, Microsoft Learn, Hacker News, and
   GitHub trending repositories, filtered to topics relevant to AI, .NET, Angular, Testing,
   Azure, Anthropic, Claude, and GitHub.
 - Guarantee freshness: the feed is never served from a local cache/disk — every load re-fetches
@@ -40,7 +40,6 @@ flowchart LR
         A1[Dev.to API]
         A2[Microsoft Learn API/RSS]
         A3[Hacker News - Algolia API]
-        A4[Hashnode GraphQL]
         A5[GitHub Search API]
     end
 
@@ -48,7 +47,6 @@ flowchart LR
         F1[DevToFetcherService]
         F2[MsLearnFetcherService]
         F3[HackerNewsFetcherService]
-        F4[HashnodeFetcherService]
         F5[GitHubFetcherService]
         N[ArticleNormalizerService]
         AGG[NewsAggregatorService]
@@ -67,7 +65,6 @@ flowchart LR
     A1 --> F1 --> N
     A2 --> F2 --> N
     A3 --> F3 --> N
-    A4 --> F4 --> N
     A5 --> F5 --> N
     N --> AGG
     AGG -->|UnifiedArticle[]| FEED
@@ -84,7 +81,7 @@ flowchart LR
   provider payload into `UnifiedArticle[]`. No HTTP calls, no side effects — fully unit
   testable in isolation.
 - **NewsAggregatorService**: orchestrates parallel fetches (`forkJoin`/`combineLatest` over the
-  5 fetchers), delegates normalization, merges results, sorts by publish date, and exposes a
+  4 fetchers), delegates normalization, merges results, sorts by publish date, and exposes a
   single observable stream to the UI. Fetch failures from one source must not block the others
   (partial results degrade gracefully).
 - **FavoritesStoreService**: wraps a Dexie database/table and exposes add/remove/list/isFavorite
@@ -99,7 +96,7 @@ Every article rendered by the UI, regardless of source, conforms to this interfa
 (implemented in Step 2 at `src/app/models/article.model.ts`):
 
 ```ts
-export type ArticleSource = 'devto' | 'mslearn' | 'hackernews' | 'hashnode' | 'github';
+export type ArticleSource = 'devto' | 'mslearn' | 'hackernews' | 'github';
 
 export interface UnifiedArticle {
   id: string;                 // stable unique id, namespaced by source (e.g. "devto-12345")
@@ -124,7 +121,6 @@ export interface UnifiedArticle {
 | Dev.to | article `id` | Tags filter: AI, .NET, Angular, Testing, Azure, Anthropic, Claude, Github |
 | Microsoft Learn | path/module `uid` or RSS `guid` | Filter: Foundry, Foundry IQ, Work IQ, AI Search, Speech, Video Indexer, Language, Agents, Workflows, Agent Framework certification paths and their .NET SDK docs |
 | Hacker News (Algolia) | `objectID` | Query restricted to Dev.to tag set; `metric.label = "points"` |
-| Hashnode (GraphQL) | post `id` | Query restricted to Dev.to tag set |
 | GitHub Search | repo `id` | Trending repos matching Dev.to tag set; `metric.label = "stars"` |
 
 ## 4. User Stories
@@ -133,21 +129,21 @@ export interface UnifiedArticle {
 
 #### A1 — View the aggregated feed
 **As a** developer user
-**I want** to see a single feed combining Dev.to, Microsoft Learn, Hacker News, Hashnode, and
+**I want** to see a single feed combining Dev.to, Microsoft Learn, Hacker News, and
 GitHub content
-**So that** I don't need to visit five separate sites to stay current.
+**So that** I don't need to visit four separate sites to stay current.
 
 **Acceptance Criteria**
 - Given the user opens the app, when the Feed component loads, then it triggers a live fetch
-  against all 5 sources concurrently (no cached/stale data is read from disk).
-- Given all 5 sources return successfully, when normalization completes, then the feed displays
+  against all 4 sources concurrently (no cached/stale data is read from disk).
+- Given all 4 sources return successfully, when normalization completes, then the feed displays
   a merged, chronologically sorted (newest first) list of `UnifiedArticle` items.
 - Given the fetch is in progress, when the user is viewing the feed, then a loading indicator is
   shown until the first render of results.
 - Given one or more sources fail (e.g. network error, non-2xx response), when the others
   succeed, then the feed still renders the successful sources' articles and shows a
   non-blocking, per-source error notice (partial degradation, not a full-page error).
-- Given all 5 sources fail, when the fetch completes, then the UI shows a full-feed error state
+- Given all 4 sources fail, when the fetch completes, then the UI shows a full-feed error state
   with a retry action.
 - Given the user reloads or revisits the Feed component, when it initializes again, then a
   brand-new live fetch is performed — no article data is read from a local cache or IndexedDB
@@ -160,7 +156,7 @@ GitHub content
 
 **Acceptance Criteria**
 - Given the feed has loaded, when the user selects one or more source filters (Dev.to, MS
-  Learn, HN, Hashnode, GitHub), then only articles from the selected sources are shown.
+  Learn, HN, GitHub), then only articles from the selected sources are shown.
 - Given the feed has loaded, when the user selects a tag, then only articles whose `tags` array
   contains that tag are shown.
 - Given no filters are selected, when the feed renders, then all normalized articles from all
@@ -175,7 +171,7 @@ metric (points, stars, or reactions)
 **Acceptance Criteria**
 - Given an article card is rendered, when it originates from Hacker News, then it displays a
   "points" metric; from GitHub, a "stars" metric; from Dev.to, a "reactions" metric (when
-  present); Microsoft Learn and Hashnode display `null` metric gracefully (no broken UI).
+  present); Microsoft Learn displays `null` metric gracefully (no broken UI).
 - Given an article has no publish date (`publishedAt === null`), when rendered, then the card
   omits the date instead of showing an invalid/empty date string.
 

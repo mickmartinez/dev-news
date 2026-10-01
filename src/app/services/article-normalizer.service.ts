@@ -3,7 +3,6 @@ import { UnifiedArticle } from '../models/article.model';
 import { DevToArticle } from './fetchers/devto-fetcher.service';
 import { MsLearnCatalogEntry } from './fetchers/mslearn-fetcher.service';
 import { HackerNewsHit } from './fetchers/hackernews-fetcher.service';
-import { HashnodePost } from './fetchers/hashnode-fetcher.service';
 import { GitHubRepo } from './fetchers/github-fetcher.service';
 
 /**
@@ -37,7 +36,7 @@ export class ArticleNormalizerService {
       summary: entry.summary,
       author: null,
       publishedAt: entry.last_modified,
-      tags: [],
+      tags: entry.matchedTopics.map((topic) => topic.toLowerCase()),
       thumbnailUrl: null,
       metric: null,
     }));
@@ -54,25 +53,10 @@ export class ArticleNormalizerService {
         summary: null,
         author: hit.author,
         publishedAt: hit.created_at,
-        tags: hit._tags.map((tag) => tag.toLowerCase()),
+        tags: hit.matchedTopics.map((topic) => topic.toLowerCase()),
         thumbnailUrl: null,
         metric: { label: 'points', value: hit.points ?? 0 },
       }));
-  }
-
-  normalizeHashnode(posts: HashnodePost[]): UnifiedArticle[] {
-    return posts.map((post) => ({
-      id: `hashnode-${post.id}`,
-      source: 'hashnode',
-      title: post.title,
-      url: post.url,
-      summary: post.brief,
-      author: post.author?.name ?? null,
-      publishedAt: post.publishedAt,
-      tags: [],
-      thumbnailUrl: post.coverImage?.url ?? null,
-      metric: null,
-    }));
   }
 
   normalizeGitHub(repos: GitHubRepo[]): UnifiedArticle[] {

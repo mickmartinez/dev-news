@@ -33,6 +33,7 @@
       [availableTags]="availableTags"
       [selectedSources]="selectedSources"
       [selectedTags]="selectedTags"
+      [tagFilteringDisabled]="state.isTagFilteringDisabled()"
       (sourceToggled)="state.toggleSourceFilter($event)"
       (tagToggled)="state.toggleTagFilter($event)"
       (filtersCleared)="state.clearFilters()"

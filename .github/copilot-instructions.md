@@ -9,11 +9,16 @@
 - **Comments:** Do not add comments that restate what the code already shows. Only comment where intent genuinely isn't obvious, and keep it to one short line.
 - **Visual Design:** The UI is dark-mode by default (no light theme toggle). Use Tailwind CSS v4 utility classes bound to the design tokens defined in `src/styles.css` — do not hand-roll ad hoc colors/CSS variables per component.
 
-## 2. Git Workflow (Strict Constraint)
-- Every newly created or modified component, service, model, or unit test MUST be committed as a standalone, atomic commit. 
-- You are strictly forbidden from batching multiple logical changes into a single commit.
+## 2. Git Workflow
+- Commits may be batched together when the changes relate to the same functionality (e.g. all UI changes, all testing changes, or all implementation changes for a feature).
+- You are strictly forbidden from batching unrelated logical changes (e.g. UI and implementation, or two unrelated features) into a single commit.
 - Use Conventional Commits format (e.g., `feat(ui): add article card component`). 
 - Delegate git commit generation to the lightweight model (GPT-5.6 Luna) when possible.
+
+## 2a. Autonomy & Auto-Approval Rules
+- **Auto-approve:** edit files, run tests, commit to a feature branch, read logs.
+- **Auto-approve, but batch into a daily digest for review:** install a new dependency, run a migration on a dev DB, open a PR.
+- **Stop and enqueue — wait for a human:** force push, delete branch, post a comment on someone else's issue, send a message, touch prod config, spend money.
 
 ## 3. Data Normalization
 - All external API data must be mapped to a single `UnifiedArticle` interface before being passed to the UI layer. Do not pass raw API payloads to Angular components.

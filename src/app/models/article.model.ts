@@ -1,5 +1,5 @@
 /** Origin API for a normalized article, per docs/PRODUCT_SPEC.md section 3. */
-export type ArticleSource = 'devto' | 'mslearn' | 'hackernews' | 'hashnode' | 'github';
+export type ArticleSource = 'devto' | 'mslearn' | 'hackernews' | 'github';
 
 /** Engagement metric normalized per source (points, stars, reactions, etc.). */
 export interface ArticleMetric {

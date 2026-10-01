@@ -2,7 +2,6 @@ import { ArticleNormalizerService } from './article-normalizer.service';
 import { DevToArticle } from './fetchers/devto-fetcher.service';
 import { MsLearnCatalogEntry } from './fetchers/mslearn-fetcher.service';
 import { HackerNewsHit } from './fetchers/hackernews-fetcher.service';
-import { HashnodePost } from './fetchers/hashnode-fetcher.service';
 import { GitHubRepo } from './fetchers/github-fetcher.service';
 
 const devToArticle = (overrides: Partial<DevToArticle> = {}): DevToArticle => ({
@@ -25,6 +24,7 @@ const msLearnEntry = (overrides: Partial<MsLearnCatalogEntry> = {}): MsLearnCata
   url: 'https://learn.microsoft.com/paths/1',
   last_modified: '2026-01-02T00:00:00Z',
   duration_in_minutes: 60,
+  matchedTopics: ['AI'],
   ...overrides,
 });
 
@@ -36,17 +36,7 @@ const hackerNewsHit = (overrides: Partial<HackerNewsHit> = {}): HackerNewsHit =>
   points: 100,
   created_at: '2026-01-03T00:00:00Z',
   _tags: ['STORY', 'AUTHOR_pg'],
-  ...overrides,
-});
-
-const hashnodePost = (overrides: Partial<HashnodePost> = {}): HashnodePost => ({
-  id: 'post-1',
-  title: 'Why Hashnode is great',
-  brief: 'A short brief about Hashnode.',
-  url: 'https://hashnode.com/post-1',
-  publishedAt: '2026-01-04T00:00:00Z',
-  coverImage: { url: 'https://hashnode.com/cover-1.png' },
-  author: { name: 'Grace Hopper' },
+  matchedTopics: ['AI'],
   ...overrides,
 });
 
@@ -117,7 +107,7 @@ describe('ArticleNormalizerService', () => {
   });
 
   describe('normalizeMsLearn', () => {
-    it('GivenMsLearnEntry_WhenNormalized_ThenMapsFieldsWithNamespacedIdAndNullAuthorAndEmptyTagsAndNullMetric', () => {
+    it('GivenMsLearnEntry_WhenNormalized_ThenMapsFieldsWithNamespacedIdAndNullAuthorAndLowercasedMatchedTopicTagsAndNullMetric', () => {
       // Arrange
       const entries = [msLearnEntry()];
 
@@ -134,7 +124,7 @@ describe('ArticleNormalizerService', () => {
           summary: 'Learn the basics of building AI apps.',
           author: null,
           publishedAt: '2026-01-02T00:00:00Z',
-          tags: [],
+          tags: ['ai'],
           thumbnailUrl: null,
           metric: null,
         },
@@ -160,10 +150,21 @@ describe('ArticleNormalizerService', () => {
       // Assert
       expect(result).toEqual([]);
     });
+
+    it('GivenMsLearnEntryWithMultipleMatchedTopics_WhenNormalized_ThenTagsContainsAllLowercasedMatchedTopics', () => {
+      // Arrange
+      const entries = [msLearnEntry({ matchedTopics: ['Azure', 'AI'] })];
+
+      // Act
+      const result = service.normalizeMsLearn(entries);
+
+      // Assert
+      expect(result[0].tags).toEqual(['azure', 'ai']);
+    });
   });
 
   describe('normalizeHackerNews', () => {
-    it('GivenHackerNewsHit_WhenNormalized_ThenMapsFieldsWithNamespacedIdAndLowercasedTagsAndNullSummary', () => {
+    it('GivenHackerNewsHit_WhenNormalized_ThenMapsFieldsWithNamespacedIdAndLowercasedMatchedTopicTagsAndNullSummary', () => {
       // Arrange
       const hits = [hackerNewsHit()];
 
@@ -180,7 +181,7 @@ describe('ArticleNormalizerService', () => {
           summary: null,
           author: 'pg',
           publishedAt: '2026-01-03T00:00:00Z',
-          tags: ['story', 'author_pg'],
+          tags: ['ai'],
           thumbnailUrl: null,
           metric: { label: 'points', value: 100 },
         },
@@ -228,51 +229,16 @@ describe('ArticleNormalizerService', () => {
       // Assert
       expect(result).toEqual([]);
     });
-  });
 
-  describe('normalizeHashnode', () => {
-    it('GivenHashnodePost_WhenNormalized_ThenMapsFieldsWithNamespacedIdAndEmptyTagsAndNullMetric', () => {
+    it('GivenHitWithMultipleMatchedTopics_WhenNormalized_ThenTagsContainsAllLowercasedMatchedTopics', () => {
       // Arrange
-      const posts = [hashnodePost()];
+      const hits = [hackerNewsHit({ matchedTopics: ['Azure', 'AI'] })];
 
       // Act
-      const result = service.normalizeHashnode(posts);
+      const result = service.normalizeHackerNews(hits);
 
       // Assert
-      expect(result).toEqual([
-        {
-          id: 'hashnode-post-1',
-          source: 'hashnode',
-          title: 'Why Hashnode is great',
-          url: 'https://hashnode.com/post-1',
-          summary: 'A short brief about Hashnode.',
-          author: 'Grace Hopper',
-          publishedAt: '2026-01-04T00:00:00Z',
-          tags: [],
-          thumbnailUrl: 'https://hashnode.com/cover-1.png',
-          metric: null,
-        },
-      ]);
-    });
-
-    it('GivenPostWithNullAuthorAndCoverImage_WhenNormalized_ThenAuthorAndThumbnailUrlAreNull', () => {
-      // Arrange
-      const posts = [hashnodePost({ author: null, coverImage: null })];
-
-      // Act
-      const result = service.normalizeHashnode(posts);
-
-      // Assert
-      expect(result[0].author).toBeNull();
-      expect(result[0].thumbnailUrl).toBeNull();
-    });
-
-    it('GivenEmptyArray_WhenNormalizeHashnodeCalled_ThenReturnsEmptyArray', () => {
-      // Act
-      const result = service.normalizeHashnode([]);
-
-      // Assert
-      expect(result).toEqual([]);
+      expect(result[0].tags).toEqual(['azure', 'ai']);
     });
   });
 
