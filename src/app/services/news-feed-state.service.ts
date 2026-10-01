@@ -29,13 +29,21 @@ export class NewsFeedStateService {
     const failedCount = this.failedSourceState().length;
     return failedCount > 0 && failedCount < this.availableSources.length;
   });
+  /** HackerNews tags are Algolia metadata (story/author/comment), never DEVNEWS_TAGS topics, so topic filtering can never match when HN is the only selected source. */
+  readonly isTagFilteringDisabled: Signal<boolean> = computed(() => {
+    const sources = this.selectedSourceState();
+    return sources.length === 1 && sources[0] === 'hackernews';
+  });
   readonly filteredArticles: Signal<UnifiedArticle[]> = computed(() => {
     const sources = this.selectedSourceState();
     const tags = this.selectedTagState();
+    const tagFilteringDisabled = this.isTagFilteringDisabled();
     return this.articleState().filter(
       (article) =>
         (sources.length === 0 || sources.includes(article.source)) &&
-        (tags.length === 0 || tags.some((tag) => article.tags.includes(tag.toLowerCase()))),
+        (tagFilteringDisabled ||
+          tags.length === 0 ||
+          tags.some((tag) => article.tags.includes(tag.toLowerCase()))),
     );
   });
   readonly availableSources: readonly ArticleSource[] = [

@@ -11,6 +11,7 @@ export class FeedFiltersComponent {
   readonly availableTags = input.required<string[]>();
   readonly selectedSources = input<ArticleSource[]>([]);
   readonly selectedTags = input<string[]>([]);
+  readonly tagFilteringDisabled = input<boolean>(false);
   readonly sourceToggled = output<ArticleSource>();
   readonly tagToggled = output<string>();
   readonly filtersCleared = output<void>();
