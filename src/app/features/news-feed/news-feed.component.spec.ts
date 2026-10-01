@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { signal } from '@angular/core';
 import { UnifiedArticle } from '../../models/article.model';
 import { NewsFeedStateService } from '../../services/news-feed-state.service';
 import { NewsFeedComponent } from './news-feed.component';
+import { FeedFiltersComponent } from './feed-filters/feed-filters.component';
 
 const article: UnifiedArticle = {
   id: 'devto-1', source: 'devto', title: 'A title', url: 'https://example.test', summary: null,
@@ -15,13 +17,16 @@ describe('NewsFeedComponent', () => {
   const isFullFailure = signal(false);
   const isPartialFailure = signal(false);
   const filteredArticles = signal<UnifiedArticle[]>([]);
+  const isTagFilteringDisabled = signal(false);
   const state = {
     status: status.asReadonly(),
     isFullFailure: isFullFailure.asReadonly(),
     isPartialFailure: isPartialFailure.asReadonly(),
     filteredArticles: filteredArticles.asReadonly(),
     failedSources: signal([]).asReadonly(),
+    isTagFilteringDisabled: isTagFilteringDisabled.asReadonly(),
     loadFeed: vi.fn(), retry: vi.fn(), clearFilters: vi.fn(),
+    toggleSourceFilter: vi.fn(), toggleTagFilter: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -71,5 +76,31 @@ describe('NewsFeedComponent', () => {
     // Assert
     expect(fixture.nativeElement.querySelector('[data-testid="partial-failure-banner"]')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('[data-testid="article-list"]')).toBeTruthy();
+  });
+
+  it('GivenNewsFeedComponentRendered_WhenStateIsTagFilteringDisabledIsTrue_ThenFeedFiltersComponentReceivesTagFilteringDisabledAsTrue', () => {
+    // Arrange
+    status.set('loaded');
+    isTagFilteringDisabled.set(true);
+
+    // Act
+    fixture.detectChanges();
+    const feedFilters = fixture.debugElement.query(By.directive(FeedFiltersComponent));
+
+    // Assert
+    expect(feedFilters.componentInstance.tagFilteringDisabled()).toBe(true);
+  });
+
+  it('GivenNewsFeedComponentRendered_WhenStateIsTagFilteringDisabledIsFalse_ThenFeedFiltersComponentReceivesTagFilteringDisabledAsFalse', () => {
+    // Arrange
+    status.set('loaded');
+    isTagFilteringDisabled.set(false);
+
+    // Act
+    fixture.detectChanges();
+    const feedFilters = fixture.debugElement.query(By.directive(FeedFiltersComponent));
+
+    // Assert
+    expect(feedFilters.componentInstance.tagFilteringDisabled()).toBe(false);
   });
 });
