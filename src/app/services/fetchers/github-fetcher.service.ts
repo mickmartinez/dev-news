@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, from, map, catchError, of, toArray, mergeMap } from 'rxjs';
 import { DEVNEWS_TAGS } from '../../data/topic-tags';
 
-/** Shape of a single repository as returned by the GitHub Search API. */
 export interface GitHubRepo {
   id: number;
   name: string;
@@ -25,18 +24,50 @@ interface GitHubSearchResponse {
 
 const GITHUB_SEARCH_API = 'https://api.github.com/search/repositories';
 
-/** Fetches trending GitHub repositories matching any of the configured topic tags. */
 @Injectable({ providedIn: 'root' })
 export class GitHubFetcherService {
   private readonly http = inject(HttpClient);
 
   fetchArticles(): Observable<GitHubRepo[]> {
-    const topicQuery = DEVNEWS_TAGS.map((tag) => `topic:${tag}`).join(' OR ');
+    // GitHub permits at most 5 boolean operators per search query, so tags are
+    // batched into groups of 6 terms (5 "OR"s) joined as plain text — "topic:"
+    // qualifiers can't be OR'd (GitHub rejects qualifier-only OR queries), and
+    // one request per tag would blow past the unauthenticated 10 req/min search limit.
+    const chunkSize = 6;
+    const chunks: string[][] = [];
+    for (let i = 0; i < DEVNEWS_TAGS.length; i += chunkSize) {
+      chunks.push(DEVNEWS_TAGS.slice(i, i + chunkSize) as string[]);
+    }
 
-    return this.http
-      .get<GitHubSearchResponse>(GITHUB_SEARCH_API, {
-        params: { q: topicQuery, sort: 'stars', order: 'desc', per_page: 30 },
+    return from(chunks).pipe(
+      mergeMap((chunk) => {
+        const query = chunk.map((tag) => (tag.includes(' ') ? `"${tag}"` : tag)).join(' OR ');
+
+        return this.http.get<GitHubSearchResponse>(GITHUB_SEARCH_API, {
+          params: { q: query, sort: 'stars', order: 'desc', per_page: 30 },
+        }).pipe(
+          catchError((err) => {
+            console.error(`GitHub fetch failed for query: ${query}`, err);
+            return of<GitHubSearchResponse>({ items: [] });
+          })
+        );
+      }, 2),
+      
+      toArray(),
+      
+      map((responses) => {
+        const byId = new Map<number, GitHubRepo>();
+        
+        for (const response of responses) {
+          for (const repo of response.items) {
+            byId.set(repo.id, repo);
+          }
+        }
+        
+        return Array.from(byId.values()).sort(
+          (a, b) => b.stargazers_count - a.stargazers_count
+        );
       })
-      .pipe(map((response) => response.items));
+    );
   }
 }
