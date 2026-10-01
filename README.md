@@ -2,17 +2,16 @@
 
 A privacy-first, zero-backend developer news aggregator built with **Angular 22** and **IndexedDB**. 
 
-This application aggregates tech news in real time across 5 distinct APIs and normalizes them into a unified feed. Articles can be saved to a local browser database without requiring external account creation or server-side persistence.
+This application aggregates tech news in real time across 4 distinct APIs and normalizes them into a unified feed. Articles can be saved to a local browser database without requiring external account creation or server-side persistence.
 
 ---
 
 ## ✨ Features
 
-- **Multi-Source Real-Time Aggregation:** Fetches content on load from 5 developer APIs:
+- **Multi-Source Real-Time Aggregation:** Fetches content on load from 4 developer APIs:
   - **Dev.to REST API:** Topics covering AI, .NET, Angular, Testing, Azure, Anthropic, Claude, and GitHub.
   - **Microsoft Learn API/RSS:** AI Certification paths (Foundry, Work IQ, AI Search, Speech, Language, Agents, Agent Framework) and .NET SDKs.
   - **Hacker News (Algolia API):** Real-time top tech stories matching core topic tags.
-  - **Hashnode GraphQL API:** Community developer articles matching topic tags.
   - **GitHub Search API:** Recently trending repositories matching core topics.
 - **Unified Data Schema:** Maps diverse API payloads into a consistent `UnifiedArticle` UI contract.
 - **Agentic Workflow:** It uses 6 different agents to implement each feature: User Story Writer, Spec Writer, TDD Test First (Red Cases), TDD Implementation and Implementation Validator.
@@ -91,7 +90,7 @@ This project was developed using an agentic workflow in GitHub Copilot Workspace
 
 ### Pending
 
-- **Fix Github and Hashnode feeds:** No articles found.
+- **Fix Github feeds:** No articles found.
 - **Fix MSLearn filters:** MSLearn Feed shows articles but nothing when a filter is applied.
 - Individual favorite cards should look like the ones in the News Feed (Tailwind).
 

@@ -2,7 +2,6 @@ import { ArticleNormalizerService } from './article-normalizer.service';
 import { DevToArticle } from './fetchers/devto-fetcher.service';
 import { MsLearnCatalogEntry } from './fetchers/mslearn-fetcher.service';
 import { HackerNewsHit } from './fetchers/hackernews-fetcher.service';
-import { HashnodePost } from './fetchers/hashnode-fetcher.service';
 import { GitHubRepo } from './fetchers/github-fetcher.service';
 
 const devToArticle = (overrides: Partial<DevToArticle> = {}): DevToArticle => ({
@@ -38,17 +37,6 @@ const hackerNewsHit = (overrides: Partial<HackerNewsHit> = {}): HackerNewsHit =>
   created_at: '2026-01-03T00:00:00Z',
   _tags: ['STORY', 'AUTHOR_pg'],
   matchedTopics: ['AI'],
-  ...overrides,
-});
-
-const hashnodePost = (overrides: Partial<HashnodePost> = {}): HashnodePost => ({
-  id: 'post-1',
-  title: 'Why Hashnode is great',
-  brief: 'A short brief about Hashnode.',
-  url: 'https://hashnode.com/post-1',
-  publishedAt: '2026-01-04T00:00:00Z',
-  coverImage: { url: 'https://hashnode.com/cover-1.png' },
-  author: { name: 'Grace Hopper' },
   ...overrides,
 });
 
@@ -251,52 +239,6 @@ describe('ArticleNormalizerService', () => {
 
       // Assert
       expect(result[0].tags).toEqual(['azure', 'ai']);
-    });
-  });
-
-  describe('normalizeHashnode', () => {
-    it('GivenHashnodePost_WhenNormalized_ThenMapsFieldsWithNamespacedIdAndEmptyTagsAndNullMetric', () => {
-      // Arrange
-      const posts = [hashnodePost()];
-
-      // Act
-      const result = service.normalizeHashnode(posts);
-
-      // Assert
-      expect(result).toEqual([
-        {
-          id: 'hashnode-post-1',
-          source: 'hashnode',
-          title: 'Why Hashnode is great',
-          url: 'https://hashnode.com/post-1',
-          summary: 'A short brief about Hashnode.',
-          author: 'Grace Hopper',
-          publishedAt: '2026-01-04T00:00:00Z',
-          tags: [],
-          thumbnailUrl: 'https://hashnode.com/cover-1.png',
-          metric: null,
-        },
-      ]);
-    });
-
-    it('GivenPostWithNullAuthorAndCoverImage_WhenNormalized_ThenAuthorAndThumbnailUrlAreNull', () => {
-      // Arrange
-      const posts = [hashnodePost({ author: null, coverImage: null })];
-
-      // Act
-      const result = service.normalizeHashnode(posts);
-
-      // Assert
-      expect(result[0].author).toBeNull();
-      expect(result[0].thumbnailUrl).toBeNull();
-    });
-
-    it('GivenEmptyArray_WhenNormalizeHashnodeCalled_ThenReturnsEmptyArray', () => {
-      // Act
-      const result = service.normalizeHashnode([]);
-
-      // Assert
-      expect(result).toEqual([]);
     });
   });
 

@@ -27,16 +27,16 @@ This specification focuses on the technical implementation details for the requi
 
 ### Feature Boundary Considerations
 
-- `NewsAggregatorService`, `ArticleNormalizerService`, the 5 fetcher services, `UnifiedArticle`/`ArticleMetric`, and `DEVTO_TAGS`/`MSLEARN_TOPICS` are **Core** (already implemented, shared, `providedIn: 'root'`).
+- `NewsAggregatorService`, `ArticleNormalizerService`, the 4 fetcher services, `UnifiedArticle`/`ArticleMetric`, and `DEVTO_TAGS`/`MSLEARN_TOPICS` are **Core** (already implemented, shared, `providedIn: 'root'`).
 - `NewsFeedStateService`, `NewsFeedComponent`, `ArticleCardComponent`, and `FeedFiltersComponent` are scoped to a new `src/app/features/news-feed/` feature folder and form a new lazy-loading boundary at the app's default route.
 - **Favoriting integration point only**: `ArticleCardComponent` exposes an `isFavorite` input and a `favoriteToggled` output. The Favorites storage mechanism (Dexie.js, per global engineering rules) is **out of scope** for this spec and will be delivered as a separate user story/spec that supplies the actual `isFavorite` value and handles the `favoriteToggled` event.
 - **Resolved**: `ArticleNormalizerService.normalizeMsLearn` now derives real `tags` from `MsLearnFetcherService.fetchArticles()`'s `matchedTopics` (the `DEVNEWS_TAGS` entries found in each entry's title/summary), so Microsoft Learn articles are fully topic-filterable like `devto`/`hackernews`/`github`. See [docs/specs/hackernews-tag-filter-disable.md](./hackernews-tag-filter-disable.md) for the `NewsFeedStateService.isTagFilteringDisabled` mechanism and this fix's history.
-- **[NEEDS CLARIFICATION] Known data limitation (Hashnode only)**: `ArticleNormalizerService.normalizeHashnode` still always sets `tags: []`. Per AND-combined filter semantics (see [Client Data & State Architecture](#4-client-data--state-architecture)), any active tag filter will exclude all Hashnode articles, since an empty `tags` array can never match a selected tag. Flagging for a follow-up spec to populate `tags` for this source (e.g., record the tag slug used in the per-tag GraphQL query, if one exists) or add `'hashnode'` to `NewsFeedStateService`'s `UNTAGGABLE_SOURCES` set as an interim UX fix. Until resolved, tag filtering is fully reliable only for `devto`, `mslearn`, `hackernews`, and `github` articles.
+- **Status update**: Hashnode has been removed as a source entirely (see `UNTAGGABLE_SOURCES`/`ArticleSource`/`NewsAggregatorService` history) — Hashnode retired free public GraphQL API access in favor of a paid offering, and its endpoint now returns a redirect that browsers refuse to follow for CORS preflight requests, making the source permanently unusable without a paid plan. Tag filtering is now fully reliable for all 4 remaining sources: `devto`, `mslearn`, `hackernews`, and `github`.
 
 ### Security Considerations
 
 - The feed is publicly accessible; no auth guard is required on the route (per AC: "No user credentials or account data are required to view the feed").
-- Article `title`, `summary`, `author`, and `tags` from all 5 sources are untrusted external input. `ArticleCardComponent`'s template must render them via standard Angular interpolation (`{{ }}`) only — never `[innerHTML]` or `bypassSecurityTrustHtml`/`bypassSecurityTrustUrl`. Angular's default sanitization prevents script injection through interpolation.
+- Article `title`, `summary`, `author`, and `tags` from all 4 sources are untrusted external input. `ArticleCardComponent`'s template must render them via standard Angular interpolation (`{{ }}`) only — never `[innerHTML]` or `bypassSecurityTrustHtml`/`bypassSecurityTrustUrl`. Angular's default sanitization prevents script injection through interpolation.
 - `thumbnailUrl` is bound to a native `src`/`NgOptimizedImage` `ngSrc` attribute, which Angular sanitizes via its built-in `SecurityContext.URL` sanitizer (strips `javascript:` URLs); no custom sanitization needed.
 - `url` (article link) is rendered as an `<a href>` with `rel="noopener noreferrer" target="_blank"` to avoid reverse-tabnabbing when opening third-party links.
 - No API keys/secrets are introduced by this spec; the existing fetcher services already call public, unauthenticated third-party APIs directly from the browser.
@@ -45,25 +45,24 @@ This specification focuses on the technical implementation details for the requi
 
 - **Bundle**: `news-feed` feature is lazy-loaded via `loadComponent` even though it sits behind the default route (`''`), keeping the initial app-shell bundle minimal. Feature budget: lazy chunk ≤ 300KB uncompressed (enforced via `angular.json` budgets).
 - **Network**: `NewsFeedComponent` triggers exactly one call to `NewsFeedStateService.loadFeed()` per page load/reload (which internally fans out to the existing per-source fetchers via `forkJoin` — that fan-out count is unchanged, existing behavior). Filtering is 100% client-side (`computed()` signals) — selecting/clearing source or tag filters never issues a new HTTP request.
-- **Rendering**: `@for` over the filtered article list uses `track article.id`. Given up to ~140 merged articles are possible across all 5 sources' bounded per-request page sizes, the list is rendered inside a `cdk-virtual-scroll-viewport` once the filtered set exceeds 50 items, per green-code list-rendering guidance.
+- **Rendering**: `@for` over the filtered article list uses `track article.id`. Given up to ~140 merged articles are possible across all 4 sources' bounded per-request page sizes, the list is rendered inside a `cdk-virtual-scroll-viewport` once the filtered set exceeds 50 items, per green-code list-rendering guidance.
 - **Deferred loading**: `FeedFiltersComponent` (filter chips UI) is wrapped in `@defer (on viewport)` since it is not needed for first paint of the article list.
 - All new components use `OnPush` change detection and signal-based `input()`/`output()`.
 
 ## API Contract
 
-There is no first-party backend for this feature — the Angular client calls 5 public third-party APIs directly, exclusively through the existing fetcher services under `src/app/services/fetchers/`. This spec does not redesign these contracts; they are summarized below for reference only.
+There is no first-party backend for this feature — the Angular client calls 4 public third-party APIs directly, exclusively through the existing fetcher services under `src/app/services/fetchers/`. This spec does not redesign these contracts; they are summarized below for reference only.
 
 | Source | Fetcher | Endpoint | Method | Key params | Raw response type |
 |---|---|---|---|---|---|
 | Dev.to | [devto-fetcher.service.ts](../../src/app/services/fetchers/devto-fetcher.service.ts) | `https://dev.to/api/articles` | GET (one request per `DEVTO_TAGS` entry) | `tag`, `per_page=20` | `DevToArticle[]` |
 | Microsoft Learn | [mslearn-fetcher.service.ts](../../src/app/services/fetchers/mslearn-fetcher.service.ts) | `https://learn.microsoft.com/api/catalog` | GET (single request) | `locale=en-us` | `MsLearnCatalogEntry[]` (filtered client-side by `MSLEARN_TOPICS`) |
 | Hacker News | [hackernews-fetcher.service.ts](../../src/app/services/fetchers/hackernews-fetcher.service.ts) | `https://hn.algolia.com/api/v1/search` | GET (one request per `DEVTO_TAGS` entry) | `query`, `tags=story`, `hitsPerPage=20` | `HackerNewsHit[]` |
-| Hashnode | [hashnode-fetcher.service.ts](../../src/app/services/fetchers/hashnode-fetcher.service.ts) | `https://gql.hashnode.com/` | POST (GraphQL; one request per `DEVTO_TAGS` slug) | `PostsByTag` query, `slug` variable | `HashnodePost[]` |
 | GitHub | [github-fetcher.service.ts](../../src/app/services/fetchers/github-fetcher.service.ts) | `https://api.github.com/search/repositories` | GET (single request) | `q=topic:<tag> OR ...`, `sort=stars`, `order=desc`, `per_page=30` | `GitHubRepo[]` |
 
-All 5 raw response types above are normalized to `UnifiedArticle` by `ArticleNormalizerService` (existing — see field mappings in [article-normalizer.service.ts](../../src/app/services/article-normalizer.service.ts)). `NewsFeedStateService` (new, this spec) consumes only `NewsAggregatorService.fetchFeed(): Observable<NewsFeedResult>` and never calls a fetcher or the normalizer directly.
+All 4 raw response types above are normalized to `UnifiedArticle` by `ArticleNormalizerService` (existing — see field mappings in [article-normalizer.service.ts](../../src/app/services/article-normalizer.service.ts)). `NewsFeedStateService` (new, this spec) consumes only `NewsAggregatorService.fetchFeed(): Observable<NewsFeedResult>` and never calls a fetcher or the normalizer directly.
 
-**Error surface for the UI layer**: `NewsFeedResult.failedSources: ArticleSource[]` is the sole error signal the UI needs to consume — HTTP status codes and retry/backoff for individual source calls are already handled inside `NewsAggregatorService` via `catchError`. This spec's components only branch on: `failedSources.length === 0` (no errors), `0 < failedSources.length < 5` (partial degradation), and `failedSources.length === 5` (full failure — note this can occur even if `articles.length > 0` is impossible in that case, since all 5 sources contributed 0 articles).
+**Error surface for the UI layer**: `NewsFeedResult.failedSources: ArticleSource[]` is the sole error signal the UI needs to consume — HTTP status codes and retry/backoff for individual source calls are already handled inside `NewsAggregatorService` via `catchError`. This spec's components only branch on: `failedSources.length === 0` (no errors), `0 < failedSources.length < 4` (partial degradation), and `failedSources.length === 4` (full failure — note this can occur even if `articles.length > 0` is impossible in that case, since all 4 sources contributed 0 articles).
 
 ## Client Data & State Architecture
 
@@ -118,15 +117,15 @@ New service, `src/app/services/news-feed-state.service.ts`, wraps `NewsAggregato
 | `articles` | `Signal<UnifiedArticle[]>` | All articles from the last completed `fetchFeed()` call, unfiltered |
 | `status` | `Signal<FeedLoadStatus>` | `'idle'` before first load, `'loading'` while a fetch is in flight, `'loaded'` once it settles (success or failure) |
 | `failedSources` | `Signal<ArticleSource[]>` | Sources that failed on the last fetch (empty array = no failures) |
-| `isFullFailure` | `Signal<boolean>` (computed) | `true` when `failedSources().length === 5` |
-| `isPartialFailure` | `Signal<boolean>` (computed) | `true` when `0 < failedSources().length < 5` |
+| `isFullFailure` | `Signal<boolean>` (computed) | `true` when `failedSources().length === 4` |
+| `isPartialFailure` | `Signal<boolean>` (computed) | `true` when `0 < failedSources().length < 4` |
 | `selectedSources` | `Signal<ArticleSource[]>` | Active source filter selections; empty = "all sources" |
 | `selectedTags` | `Signal<string[]>` | Active tag filter selections; empty = "all tags" |
 | `filteredArticles` | `Signal<UnifiedArticle[]>` (computed) | `articles()` filtered by `selectedSources` AND `selectedTags` (see rule below) |
-| `availableSources` | `readonly ArticleSource[]` (constant) | `['devto', 'mslearn', 'hackernews', 'hashnode', 'github']` |
+| `availableSources` | `readonly ArticleSource[]` (constant) | `['devto', 'mslearn', 'hackernews', 'github']` |
 | `availableTags` | `readonly string[]` (constant) | `[...DEVTO_TAGS, ...MSLEARN_TOPICS]` (existing constants from [topic-tags.ts](../../src/app/data/topic-tags.ts)), lowercased for matching |
 | `loadFeed(): void` | method | Calls `NewsAggregatorService.fetchFeed()`, sets `status` to `'loading'`, then updates `articles`/`failedSources`/`status` on completion. Also used for the initial load. |
-| `retry(): void` | method | Alias for `loadFeed()` — always re-fetches all 5 sources fresh, per AC ("Retrying ... does not reuse any previously failed or partial results") |
+| `retry(): void` | method | Alias for `loadFeed()` — always re-fetches all 4 sources fresh, per AC ("Retrying ... does not reuse any previously failed or partial results") |
 | `toggleSourceFilter(source: ArticleSource): void` | method | Adds/removes a source from `selectedSources` |
 | `toggleTagFilter(tag: string): void` | method | Adds/removes a tag from `selectedTags` |
 | `clearFilters(): void` | method | Resets both `selectedSources` and `selectedTags` to `[]` |
@@ -203,7 +202,7 @@ An empty `selectedSources`/`selectedTags` array is treated as "no filter on that
 
 **Template rules**:
 - Always shows `title`, a source badge (mapped from `ArticleSource` to a display label, e.g. `devto` → "Dev.to"), and `summary` when non-null
-- Shows `metric.label`/`metric.value` only when `metric !== null` (per AC: MS Learn/Hashnode show no metric row at all, never a placeholder/zero)
+- Shows `metric.label`/`metric.value` only when `metric !== null` (per AC: MS Learn no-metric rule)
 - Shows a formatted `publishedAt` date only when `publishedAt !== null`; the date field is omitted entirely otherwise (never renders "Invalid Date" or an epoch placeholder)
 - Renders `thumbnailUrl` via `NgOptimizedImage` when non-null; omits the image element otherwise
 - Article title/link uses `<a [href]="article().url" target="_blank" rel="noopener noreferrer">`
@@ -305,7 +304,7 @@ An empty `selectedSources`/`selectedTags` array is treated as "no filter on that
 - [ ] GivenNewsFeedComponent_WhenFilteredArticlesEmptyButNotFullFailure_ThenEmptyFilterStateShownDistinctFromFullErrorState
 - [ ] GivenNewsFeedComponent_WhenFilteredArticlesExceedFifty_ThenVirtualScrollViewportIsUsed
 - [ ] GivenNewsFeedComponent_WhenListRendered_ThenTrackByUsesArticleId
-- [ ] GivenArticleCardComponent_WhenMetricIsNull_ThenNoMetricRowRendered (validates AC: MS Learn/Hashnode no-metric rule)
+- [ ] GivenArticleCardComponent_WhenMetricIsNull_ThenNoMetricRowRendered (validates AC: MS Learn no-metric rule)
 - [ ] GivenArticleCardComponent_WhenPublishedAtIsNull_ThenNoDateFieldRenderedAndNoInvalidDateShown (validates AC: date omission rule)
 - [ ] GivenArticleCardComponent_WhenTitleContainsHtmlLikeString_ThenRenderedAsTextNotInterpretedAsHtml (validates AC: Security — untrusted input rendered safely)
 - [ ] GivenArticleCardComponent_WhenFavoriteButtonClicked_ThenFavoriteToggledOutputEmitsWithArticle

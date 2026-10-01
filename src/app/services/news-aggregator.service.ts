@@ -5,7 +5,6 @@ import { ArticleNormalizerService } from './article-normalizer.service';
 import { DevToFetcherService } from './fetchers/devto-fetcher.service';
 import { MsLearnFetcherService } from './fetchers/mslearn-fetcher.service';
 import { HackerNewsFetcherService } from './fetchers/hackernews-fetcher.service';
-import { HashnodeFetcherService } from './fetchers/hashnode-fetcher.service';
 import { GitHubFetcherService } from './fetchers/github-fetcher.service';
 
 /** Result of a feed load: successfully normalized articles plus any sources that failed. */
@@ -32,7 +31,6 @@ export class NewsAggregatorService {
   private readonly devToFetcher = inject(DevToFetcherService);
   private readonly msLearnFetcher = inject(MsLearnFetcherService);
   private readonly hackerNewsFetcher = inject(HackerNewsFetcherService);
-  private readonly hashnodeFetcher = inject(HashnodeFetcherService);
   private readonly gitHubFetcher = inject(GitHubFetcherService);
 
   fetchFeed(): Observable<NewsFeedResult> {
@@ -65,15 +63,6 @@ export class NewsAggregatorService {
       ),
     );
 
-    const hashnode$ = this.hashnodeFetcher.fetchArticles().pipe(
-      map((posts): SourceFetchOutcome => ({
-        source: 'hashnode',
-        articles: this.normalizer.normalizeHashnode(posts),
-        failed: false,
-      })),
-      catchError(() => of<SourceFetchOutcome>({ source: 'hashnode', articles: [], failed: true })),
-    );
-
     const gitHub$ = this.gitHubFetcher.fetchArticles().pipe(
       map((repos): SourceFetchOutcome => ({
         source: 'github',
@@ -83,7 +72,7 @@ export class NewsAggregatorService {
       catchError(() => of<SourceFetchOutcome>({ source: 'github', articles: [], failed: true })),
     );
 
-    return forkJoin([devTo$, msLearn$, hackerNews$, hashnode$, gitHub$]).pipe(
+    return forkJoin([devTo$, msLearn$, hackerNews$, gitHub$]).pipe(
       map((outcomes) => this.mergeOutcomes(outcomes)),
     );
   }

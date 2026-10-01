@@ -1,7 +1,7 @@
 # As a developer user, I want to see a single aggregated feed of developer content so that I don't need to visit five separate sites
 
 ## Description
-Developers currently have to check multiple sites — Dev.to, Microsoft Learn, Hacker News, Hashnode, and GitHub — to stay on top of relevant content. This story delivers a single, real-time news feed that combines articles/items from all five sources into one unified view, filtered to topics the user cares about (AI, .NET, Angular, Testing, Azure, Anthropic, Claude, GitHub, plus Microsoft Learn AI certification paths). The feed always reflects the current state of each source — nothing is cached to disk — and remains useful even when some sources are temporarily unavailable.
+Developers currently have to check multiple sites — Dev.to, Microsoft Learn, Hacker News, and GitHub — to stay on top of relevant content. This story delivers a single, real-time news feed that combines articles/items from all four sources into one unified view, filtered to topics the user cares about (AI, .NET, Angular, Testing, Azure, Anthropic, Claude, GitHub, plus Microsoft Learn AI certification paths). The feed always reflects the current state of each source — nothing is cached to disk — and remains useful even when some sources are temporarily unavailable.
 
 ## Scenario
 
@@ -9,7 +9,7 @@ Developers currently have to check multiple sites — Dev.to, Microsoft Learn, H
 **Given** the user opens the news portal
 **When** the feed loads
 **Then** the user sees a loading indicator while data is being fetched
-**And** once fetching completes, the user sees a combined, reverse-chronological (or otherwise ranked) list of articles from Dev.to, Microsoft Learn, Hacker News, Hashnode, and GitHub
+**And** once fetching completes, the user sees a combined, reverse-chronological (or otherwise ranked) list of articles from Dev.to, Microsoft Learn, Hacker News, and GitHub
 **And** each article card displays its source, title, and a relevant engagement metric where available (Hacker News → points, GitHub → stars, Dev.to → reactions)
 **And** articles without a publish date simply omit the date field rather than showing an invalid or placeholder date
 
@@ -47,10 +47,10 @@ Developers currently have to check multiple sites — Dev.to, Microsoft Learn, H
 ## Acceptance Criteria
 
 ### Core Functionality
-- The feed combines content from exactly five sources: Dev.to, Microsoft Learn, Hacker News, Hashnode, and GitHub.
+- The feed combines content from exactly four sources: Dev.to, Microsoft Learn, Hacker News, and GitHub.
 - The feed is fetched live on every page load/reload; feed data is never persisted to or read from disk-based cache.
 - Each article card displays, at minimum: title, source, and (where available) an engagement metric appropriate to its source (points for Hacker News, stars for GitHub, reactions for Dev.to).
-- Microsoft Learn and Hashnode items are displayed without an engagement metric when none is available, rather than showing a placeholder or zero value.
+- Microsoft Learn items are displayed without an engagement metric when none is available, rather than showing a placeholder or zero value.
 - Articles missing a publish date are displayed without a date field; no invalid/placeholder date (e.g. "Invalid Date", "01/01/1970") is ever shown.
 
 ### Input Validation

@@ -63,7 +63,7 @@ describe('NewsFeedStateService', () => {
   it('GivenPartialFailure_WhenFeedSettles_ThenExposesResultsAndPartialFailure', () => {
     // Arrange
     fetchFeed.mockReturnValue(
-      of<NewsFeedResult>({ articles: [article('devto-1', 'devto')], failedSources: ['hashnode'] }),
+      of<NewsFeedResult>({ articles: [article('devto-1', 'devto')], failedSources: ['github'] }),
     );
 
     // Act
@@ -71,7 +71,7 @@ describe('NewsFeedStateService', () => {
 
     // Assert
     expect(service.articles()).toEqual([article('devto-1', 'devto')]);
-    expect(service.failedSources()).toEqual(['hashnode']);
+    expect(service.failedSources()).toEqual(['github']);
     expect(service.isPartialFailure()).toBe(true);
   });
 
