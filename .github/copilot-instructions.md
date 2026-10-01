@@ -37,12 +37,12 @@ artifacts that a mandated agent is responsible for producing — invoke the agen
    user story from step 1.
 3. **`angular-model-generator`** — produces the TypeScript models/interfaces and Angular
    data-access services for the feature, following the spec from step 2.
-4. Implementation (components, storage, wiring) proceeds against the approved spec.
-5. **`implementation-validator`** — after implementation, validates the code against the
+4. **Testing (TDD Red phase)** — **`tdd-test-first`** writes the failing unit tests against
+   the approved spec, before any implementation (components, storage, wiring) exists.
+5. **Implementation (TDD Green phase)** — **`tdd-implementation`** writes the production code
+   (components, storage, wiring) needed to make the failing tests from step 4 pass.
+6. **`implementation-validator`** — after implementation, validates the code against the
    technical spec and reports any gaps before the feature is considered done.
-6. **Testing** — unit tests are produced via the TDD agent pair, not hand-written directly:
-   - **`tdd-test-first`** writes the failing tests (Red phase).
-   - **`tdd-implementation`** makes them pass (Green phase).
 
 This pipeline applies to every feature, including retroactively revising any work completed
 before this rule was added.
