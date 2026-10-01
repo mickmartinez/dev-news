@@ -1,6 +1,6 @@
 # 📰 Personal Developer News Portal
 
-A privacy-first, zero-backend developer news aggregator built with **Angular 22** and **IndexedDB**. 
+A privacy-first, zero-backend (for now) developer news aggregator built with **Angular 22** and **IndexedDB**. 
 
 This application aggregates tech news in real time across 4 distinct APIs and normalizes them into a unified feed. Articles can be saved to a local browser database without requiring external account creation or server-side persistence.
 
@@ -42,7 +42,7 @@ This application aggregates tech news in real time across 4 distinct APIs and no
 ### Installation
 
 1. Clone the repository:
-   git clone https://github.com/your-username/dev-news.git
+   git clone https://github.com/mickmartinez/dev-news.git
    cd dev-news-portal
 
 2. Install dependencies:
@@ -90,9 +90,7 @@ This project was developed using an agentic workflow in GitHub Copilot Workspace
 
 ### Pending
 
-- **Fix Github feeds:** No articles found.
-- **Fix MSLearn filters:** MSLearn Feed shows articles but nothing when a filter is applied.
-- Individual favorite cards should look like the ones in the News Feed (Tailwind).
+- **Add backend service**: Add a new project in .NET that checks how green (Green coding) a Github repo is.
 
 
 ---
