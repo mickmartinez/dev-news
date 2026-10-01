@@ -1,6 +1,8 @@
 /** Dev.to tag slugs to fetch, per docs/PRODUCT_SPEC.md section 4 (Epic A). */
 export const DEVNEWS_TAGS: readonly string[] = [
   'ai',
+  'csharp',
+  'C#',
   'dotnet',
   'angular',
   'testing',
@@ -18,10 +20,66 @@ export const DEVNEWS_TAGS: readonly string[] = [
   'workIQ',
   'ai search',
   'speech',
-  'video indexer',
   'language',
   'agents',
   'workflows',
   'agent framework',
   'cognitive services'
 ];
+
+/** Dev.to tag slugs to fetch, per docs/PRODUCT_SPEC.md section 4 (Epic A). */
+export const MSLEARN_TAGS: readonly string[] = [
+  'ai',
+  'C#',
+  'angular',
+  'testing',
+  'azure',
+  'anthropic',
+  'claude',
+  'github',
+  'openai',
+  'vercel',
+  'nodejs',
+  'nestjs',
+  'supabase',
+  'foundry',
+  'foundry IQ',
+  'work IQ',
+  'ai search',
+  'speech',
+  'language',
+  'agents',
+  'workflows',
+  'agent framework',
+  'cognitive services'
+];
+
+export const GITHUB_TAGS: readonly string[] = [
+  'ai',
+  'C#',
+  'angular',
+  'testing',
+  'azure',
+  'anthropic',
+  'claude',
+  'openai',
+  'vercel',
+  'nodejs',
+  'nestjs',
+  'supabase',
+  'foundry',
+  'foundry-iq',
+  'work-iq',
+  'ai-search',
+  'speech',
+  'language',
+  'agents',
+  'workflows',
+  'agent-framework',
+  'cognitive-services',
+  'langchain',
+  'chatgpt'
+];
+
+
+

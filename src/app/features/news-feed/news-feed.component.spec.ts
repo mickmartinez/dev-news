@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { signal } from '@angular/core';
-import { UnifiedArticle } from '../../models/article.model';
+import { ArticleSource, UnifiedArticle } from '../../models/article.model';
 import { NewsFeedStateService } from '../../services/news-feed-state.service';
 import { NewsFeedComponent } from './news-feed.component';
 import { FeedFiltersComponent } from './feed-filters/feed-filters.component';
@@ -18,6 +18,7 @@ describe('NewsFeedComponent', () => {
   const isPartialFailure = signal(false);
   const filteredArticles = signal<UnifiedArticle[]>([]);
   const isTagFilteringDisabled = signal(false);
+  const availableTags = signal<string[]>([]);
   const state = {
     status: status.asReadonly(),
     isFullFailure: isFullFailure.asReadonly(),
@@ -25,6 +26,7 @@ describe('NewsFeedComponent', () => {
     filteredArticles: filteredArticles.asReadonly(),
     failedSources: signal([]).asReadonly(),
     isTagFilteringDisabled: isTagFilteringDisabled.asReadonly(),
+    availableTags: availableTags.asReadonly(),
     loadFeed: vi.fn(), retry: vi.fn(), clearFilters: vi.fn(),
     toggleSourceFilter: vi.fn(), toggleTagFilter: vi.fn(),
   };
@@ -102,5 +104,73 @@ describe('NewsFeedComponent', () => {
 
     // Assert
     expect(feedFilters.componentInstance.tagFilteringDisabled()).toBe(false);
+  });
+
+  const createLocalFixture = (availableTags: () => string[], selectedTags: () => string[] = () => []) => {
+    TestBed.resetTestingModule();
+    const availableTagsSignal = signal<string[]>(availableTags());
+    const selectedTagsSignal = signal<string[]>(selectedTags());
+    const localState = {
+      status: signal<'idle' | 'loading' | 'loaded'>('loaded').asReadonly(),
+      isFullFailure: signal(false).asReadonly(),
+      isPartialFailure: signal(false).asReadonly(),
+      filteredArticles: signal<UnifiedArticle[]>([]).asReadonly(),
+      failedSources: signal<ArticleSource[]>([]).asReadonly(),
+      isTagFilteringDisabled: signal(false).asReadonly(),
+      availableSources: ['devto', 'mslearn', 'hackernews', 'github'] as ArticleSource[],
+      availableTags: availableTagsSignal.asReadonly(),
+      selectedSources: signal<ArticleSource[]>([]).asReadonly(),
+      selectedTags: selectedTagsSignal.asReadonly(),
+      loadFeed: vi.fn(), retry: vi.fn(), clearFilters: vi.fn(),
+      toggleSourceFilter: vi.fn(), toggleTagFilter: vi.fn(),
+    };
+    TestBed.configureTestingModule({
+      imports: [NewsFeedComponent],
+      providers: [{ provide: NewsFeedStateService, useValue: localState }],
+    });
+    return { fixture: TestBed.createComponent(NewsFeedComponent), availableTagsSignal, selectedTagsSignal };
+  };
+
+  it('GivenNewsFeedComponentRendered_WhenNoSourcesAreSelected_ThenFeedFiltersComponentReceivesTheFullAvailableTagsUnionAsInput', () => {
+    // Arrange
+    const { fixture: localFixture } = createLocalFixture(() => ['angular', 'azure', 'csharp']);
+
+    // Act
+    localFixture.detectChanges();
+    const feedFilters = localFixture.debugElement.query(By.directive(FeedFiltersComponent));
+
+    // Assert
+    expect(feedFilters.componentInstance.availableTags()).toEqual(['angular', 'azure', 'csharp']);
+  });
+
+  it('GivenNewsFeedComponentRendered_WhenASourceIsToggledViaStateService_ThenFeedFiltersComponentsAvailableTagsInputUpdatesOnTheNextChangeDetectionCycle', () => {
+    // Arrange
+    const { fixture: localFixture, availableTagsSignal } = createLocalFixture(() => ['angular', 'azure', 'csharp']);
+    localFixture.detectChanges();
+
+    // Act
+    availableTagsSignal.set(['langchain']);
+    localFixture.detectChanges();
+    const feedFilters = localFixture.debugElement.query(By.directive(FeedFiltersComponent));
+
+    // Assert
+    expect(feedFilters.componentInstance.availableTags()).toEqual(['langchain']);
+  });
+
+  it('GivenNewsFeedComponentRendered_WhenASourceIsToggledSuchThatASelectedTagBecomesOutOfScope_ThenFeedFiltersComponentsSelectedTagsInputNoLongerIncludesThatTag', () => {
+    // Arrange
+    const { fixture: localFixture, selectedTagsSignal } = createLocalFixture(
+      () => ['langchain'],
+      () => ['langchain'],
+    );
+    localFixture.detectChanges();
+
+    // Act
+    selectedTagsSignal.set([]);
+    localFixture.detectChanges();
+    const feedFilters = localFixture.debugElement.query(By.directive(FeedFiltersComponent));
+
+    // Assert
+    expect(feedFilters.componentInstance.selectedTags()).toEqual([]);
   });
 });

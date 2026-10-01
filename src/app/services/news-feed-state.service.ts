@@ -1,7 +1,7 @@
 import { DestroyRef, Injectable, Signal, computed, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ArticleSource, UnifiedArticle } from '../models/article.model';
-import { DEVNEWS_TAGS } from '../data/topic-tags';
+import { DEVNEWS_TAGS, GITHUB_TAGS, MSLEARN_TAGS } from '../data/topic-tags';
 import { FeedLoadStatus } from '../models/feed-filter-state.model';
 import { NewsAggregatorService } from './news-aggregator.service';
 
@@ -53,7 +53,31 @@ export class NewsFeedStateService {
     'hackernews',
     'github',
   ];
-  readonly availableTags: readonly string[] = [...DEVNEWS_TAGS].map((tag) => tag.toLowerCase());
+  private static readonly SOURCE_TAG_SETS: Record<ArticleSource, readonly string[]> = {
+    devto: DEVNEWS_TAGS,
+    hackernews: DEVNEWS_TAGS,
+    mslearn: MSLEARN_TAGS,
+    github: GITHUB_TAGS,
+  };
+  readonly availableTags: Signal<string[]> = computed(() => {
+    const selectedSources = this.selectedSourceState();
+    const sourcesToUse =
+      selectedSources.length === 0
+        ? this.availableSources
+        : this.availableSources.filter((source) => selectedSources.includes(source));
+    const seen = new Set<string>();
+    const result: string[] = [];
+    for (const source of sourcesToUse) {
+      for (const tag of NewsFeedStateService.SOURCE_TAG_SETS[source] ?? []) {
+        const normalized = tag.toLowerCase();
+        if (!seen.has(normalized)) {
+          seen.add(normalized);
+          result.push(normalized);
+        }
+      }
+    }
+    return result;
+  });
 
   constructor() {
     this.destroyRef.onDestroy(() => this.activeLoad?.unsubscribe());
@@ -85,6 +109,12 @@ export class NewsFeedStateService {
     this.selectedSourceState.update((sources) =>
       sources.includes(source) ? sources.filter((item) => item !== source) : [...sources, source],
     );
+    this.pruneOutOfScopeTags();
+  }
+
+  private pruneOutOfScopeTags(): void {
+    const stillAvailable = new Set(this.availableTags());
+    this.selectedTagState.update((tags) => tags.filter((tag) => stillAvailable.has(tag)));
   }
 
   toggleTagFilter(tag: string): void {

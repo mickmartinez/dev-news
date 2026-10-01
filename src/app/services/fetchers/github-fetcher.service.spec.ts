@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, TestRequest, provideHttpClientTesting } from '@angular/common/http/testing';
-import { DEVNEWS_TAGS } from '../../data/topic-tags';
+import { GITHUB_TAGS } from '../../data/topic-tags';
 import { GitHubFetcherService, GitHubRepo } from './github-fetcher.service';
 
 const GITHUB_SEARCH_API = 'https://api.github.com/search/repositories';
@@ -10,8 +10,8 @@ const CHUNK_SIZE = 6;
 /** Mirrors the production chunking/quoting logic so assertions track DEVNEWS_TAGS, not a hardcoded copy. */
 const expectedQueries = (): string[] => {
   const queries: string[] = [];
-  for (let i = 0; i < DEVNEWS_TAGS.length; i += CHUNK_SIZE) {
-    const chunk = DEVNEWS_TAGS.slice(i, i + CHUNK_SIZE);
+  for (let i = 0; i < GITHUB_TAGS.length; i += CHUNK_SIZE) {
+    const chunk = GITHUB_TAGS.slice(i, i + CHUNK_SIZE);
     queries.push(chunk.map((tag) => (tag.includes(' ') ? `"${tag}"` : tag)).join(' OR '));
   }
   return queries;
@@ -67,7 +67,7 @@ describe('GitHubFetcherService', () => {
     return seen;
   };
 
-  it('batches tags into queries of at most 5 OR operators each', () => {
+  it('batches tags into queries of at most 6 OR operators each', () => {
     service.fetchArticles().subscribe();
 
     const queries = expectedQueries();
@@ -87,7 +87,7 @@ describe('GitHubFetcherService', () => {
     const requests = drainRequests((req) => req.flush({ items: [] }));
     const allQueries = requests.map((req) => req.request.params.get('q') ?? '');
 
-    for (const tag of DEVNEWS_TAGS.filter((t) => t.includes(' '))) {
+    for (const tag of GITHUB_TAGS.filter((t) => t.includes(' '))) {
       expect(allQueries.some((q) => q.includes(`"${tag}"`))).toBe(true);
     }
   });

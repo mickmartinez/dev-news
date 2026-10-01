@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, from, map, catchError, of, toArray, mergeMap } from 'rxjs';
-import { DEVNEWS_TAGS } from '../../data/topic-tags';
+import { GITHUB_TAGS } from '../../data/topic-tags';
 
 export interface GitHubRepo {
   id: number;
@@ -29,14 +29,10 @@ export class GitHubFetcherService {
   private readonly http = inject(HttpClient);
 
   fetchArticles(): Observable<GitHubRepo[]> {
-    // GitHub permits at most 5 boolean operators per search query, so tags are
-    // batched into groups of 6 terms (5 "OR"s) joined as plain text — "topic:"
-    // qualifiers can't be OR'd (GitHub rejects qualifier-only OR queries), and
-    // one request per tag would blow past the unauthenticated 10 req/min search limit.
     const chunkSize = 6;
     const chunks: string[][] = [];
-    for (let i = 0; i < DEVNEWS_TAGS.length; i += chunkSize) {
-      chunks.push(DEVNEWS_TAGS.slice(i, i + chunkSize) as string[]);
+    for (let i = 0; i < GITHUB_TAGS.length; i += chunkSize) {
+      chunks.push(GITHUB_TAGS.slice(i, i + chunkSize) as string[]);
     }
 
     return from(chunks).pipe(
