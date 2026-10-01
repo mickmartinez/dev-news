@@ -54,7 +54,7 @@ export class ArticleNormalizerService {
         summary: null,
         author: hit.author,
         publishedAt: hit.created_at,
-        tags: hit._tags.map((tag) => tag.toLowerCase()),
+        tags: hit.matchedTopics.map((topic) => topic.toLowerCase()),
         thumbnailUrl: null,
         metric: { label: 'points', value: hit.points ?? 0 },
       }));

@@ -12,6 +12,8 @@ export interface HackerNewsHit {
   points: number | null;
   created_at: string;
   _tags: string[];
+  /** DEVNEWS_TAGS query terms that returned this hit; always non-empty for a fetched hit. */
+  matchedTopics: string[];
 }
 
 interface HackerNewsSearchResponse {
@@ -37,11 +39,13 @@ export class HackerNewsFetcherService {
     return forkJoin(requests).pipe(
       map((responses) => {
         const byId = new Map<string, HackerNewsHit>();
-        for (const response of responses) {
+        responses.forEach((response, index) => {
+          const matchedTopic = DEVNEWS_TAGS[index];
           for (const hit of response.hits) {
-            byId.set(hit.objectID, hit);
+            const matchedTopics = [...new Set([...(byId.get(hit.objectID)?.matchedTopics ?? []), matchedTopic])];
+            byId.set(hit.objectID, { ...hit, matchedTopics });
           }
-        }
+        });
         return Array.from(byId.values());
       }),
     );

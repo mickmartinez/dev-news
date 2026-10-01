@@ -29,8 +29,8 @@ export class NewsFeedStateService {
     const failedCount = this.failedSourceState().length;
     return failedCount > 0 && failedCount < this.availableSources.length;
   });
-  /** HackerNews tags are Algolia metadata, not DEVNEWS_TAGS topics — topic filtering can never match when every selected source is untaggable. */
-  private static readonly UNTAGGABLE_SOURCES: ReadonlySet<ArticleSource> = new Set(['hackernews']);
+  /** No selectable source is currently untaggable — reserved for sources whose normalizer can't yet derive real DEVNEWS_TAGS topic tags (e.g. Hashnode). */
+  private static readonly UNTAGGABLE_SOURCES: ReadonlySet<ArticleSource> = new Set();
   readonly isTagFilteringDisabled: Signal<boolean> = computed(() => {
     const sources = this.selectedSourceState();
     return sources.length > 0 && sources.every((source) => NewsFeedStateService.UNTAGGABLE_SOURCES.has(source));
