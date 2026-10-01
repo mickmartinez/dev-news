@@ -11,6 +11,8 @@ export interface MsLearnCatalogEntry {
   url: string;
   last_modified: string | null;
   duration_in_minutes: number | null;
+  /** DEVNEWS_TAGS topics found in the title/summary; always non-empty, since fetchArticles() only keeps matching entries. */
+  matchedTopics: string[];
 }
 
 interface MsLearnCatalogResponse {
@@ -31,13 +33,15 @@ export class MsLearnFetcherService {
       .pipe(
         map((response) => {
           const combined = [...response.learningPaths, ...response.modules];
-          return combined.filter((entry) => this.matchesTopic(entry));
+          return combined
+            .map((entry) => ({ ...entry, matchedTopics: this.matchedTopics(entry) }))
+            .filter((entry) => entry.matchedTopics.length > 0);
         }),
       );
   }
 
-  private matchesTopic(entry: MsLearnCatalogEntry): boolean {
+  private matchedTopics(entry: MsLearnCatalogEntry): string[] {
     const haystack = `${entry.title} ${entry.summary ?? ''}`.toLowerCase();
-    return DEVNEWS_TAGS.some((topic) => haystack.includes(topic.toLowerCase()));
+    return DEVNEWS_TAGS.filter((topic) => haystack.includes(topic.toLowerCase()));
   }
 }

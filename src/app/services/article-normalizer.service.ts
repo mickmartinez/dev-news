@@ -37,7 +37,7 @@ export class ArticleNormalizerService {
       summary: entry.summary,
       author: null,
       publishedAt: entry.last_modified,
-      tags: [],
+      tags: entry.matchedTopics.map((topic) => topic.toLowerCase()),
       thumbnailUrl: null,
       metric: null,
     }));
