@@ -1,9 +1,15 @@
 # Hacker News Tag Filter Disable
 
-**Status**: Draft
+**Status**: Superseded (for Hacker News) — see Status Update below
 **Created**: 2026-10-01
 **Author**: spec-writer agent
 **Related Stories**: [docs/user-stories/hackernews-tag-filter-disable-user-story.md](../user-stories/hackernews-tag-filter-disable-user-story.md)
+
+## Status Update (2026-10-01)
+
+`HackerNewsFetcherService.fetchArticles()` was fixed at the data layer: it now tracks, per hit, which `DEVNEWS_TAGS` query term(s) returned it (`matchedTopics`), and `ArticleNormalizerService.normalizeHackerNews` derives `UnifiedArticle.tags` from `matchedTopics` instead of Algolia's `_tags` metadata. Hacker News articles are therefore genuinely topic-filterable, and `'hackernews'` has been **removed** from `NewsFeedStateService.UNTAGGABLE_SOURCES` (now empty, pending a similar fix for Hashnode — see [docs/specs/aggregated-news-feed.md](./aggregated-news-feed.md)).
+
+Everything below this point describes the **original disable-based workaround**, which is no longer active for Hacker News. The `isTagFilteringDisabled` computed signal, `FeedFiltersComponent.tagFilteringDisabled` input, and the component wiring it describes **remain in the codebase** as the general mechanism for any future untaggable source — only the root-cause analysis and the `UNTAGGABLE_SOURCES` set membership have changed.
 
 ## Executive Summary
 

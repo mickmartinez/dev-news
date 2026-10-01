@@ -1,7 +1,16 @@
 # As a developer user, I want the Topics filter to be disabled when it can't affect my results so that I don't get a confusing empty feed
 
+## Status Update (superseded for Hacker News)
+
+The root cause described below has been fixed at the data layer instead: `HackerNewsFetcherService.fetchArticles()` now tracks which `DEVNEWS_TAGS` query term returned each hit (`matchedTopics`), and `ArticleNormalizerService.normalizeHackerNews` derives real topic tags from it instead of Algolia's unrelated `_tags` metadata. Hacker News articles are therefore genuinely topic-filterable now, and disabling the Topics filter is **no longer necessary for Hacker News** — all scenarios and acceptance criteria below that reference Hacker News specifically no longer apply to it. See [docs/specs/hackernews-tag-filter-disable.md](../specs/hackernews-tag-filter-disable.md) for the updated technical write-up.
+
+The general mechanism this story introduced (`NewsFeedStateService.isTagFilteringDisabled`, driven by an `UNTAGGABLE_SOURCES` set) remains in the codebase, since it's still needed for any source whose normalizer can't yet derive real topic tags (currently: Hashnode, tracked as a known gap in [docs/specs/aggregated-news-feed.md](../specs/aggregated-news-feed.md)).
+
 ## Description
 Hacker News articles are matched against the app's topic taxonomy at fetch time via a full-text search query, not via a taggable topic field — so Hacker News articles never carry any of the app's defined topics (e.g. "angular", "typescript", "dotnet") in their tag data. As a result, whenever Hacker News is the only selected source, applying any Topics filter always produces zero results, with no indication to the user why the feed suddenly went empty. This story makes that limitation visible and predictable by disabling the Topics filter controls whenever they cannot meaningfully narrow the results, and re-enabling them automatically as soon as they can.
+
+**(Superseded, see Status Update above)** The scenarios, acceptance criteria, and examples below describe the original Hacker-News-specific problem and remain valid as the general design for any future untaggable source, but they no longer describe Hacker News's actual behavior.
+
 
 ## Scenario
 
