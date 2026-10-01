@@ -168,6 +168,41 @@ describe('NewsFeedStateService', () => {
     expect(disabled).toBe(true);
   });
 
+  it('GivenOnlyMsLearnSelected_WhenIsTagFilteringDisabledRead_ThenTrue', () => {
+    // Arrange
+    service.toggleSourceFilter('mslearn');
+
+    // Act
+    const disabled = service.isTagFilteringDisabled();
+
+    // Assert
+    expect(disabled).toBe(true);
+  });
+
+  it('GivenMsLearnPlusAnotherSourceSelected_WhenIsTagFilteringDisabledRead_ThenFalse', () => {
+    // Arrange
+    service.toggleSourceFilter('mslearn');
+    service.toggleSourceFilter('devto');
+
+    // Act
+    const disabled = service.isTagFilteringDisabled();
+
+    // Assert
+    expect(disabled).toBe(false);
+  });
+
+  it('GivenHackerNewsAndMsLearnBothSelectedAndNothingElse_WhenIsTagFilteringDisabledRead_ThenTrue', () => {
+    // Arrange
+    service.toggleSourceFilter('hackernews');
+    service.toggleSourceFilter('mslearn');
+
+    // Act
+    const disabled = service.isTagFilteringDisabled();
+
+    // Assert
+    expect(disabled).toBe(true);
+  });
+
   it('GivenOnlyHackerNewsSelectedAndTagsSelected_WhenFilteredArticlesRead_ThenTagCriteriaIsIgnoredAndMatchingHackerNewsArticlesAreReturned', () => {
     // Arrange
     fetchFeed.mockReturnValue(
@@ -188,6 +223,25 @@ describe('NewsFeedStateService', () => {
 
     // Assert
     expect(result.map((item) => item.id)).toEqual(['hn-1', 'hn-2']);
+  });
+
+  it('GivenOnlyMsLearnSelectedAndTagsSelected_WhenFilteredArticlesRead_ThenTagCriteriaIsIgnoredAndMsLearnArticlesAreReturned', () => {
+    // Arrange
+    fetchFeed.mockReturnValue(
+      of<NewsFeedResult>({
+        articles: [article('ms-1', 'mslearn', []), article('ms-2', 'mslearn', [])],
+        failedSources: [],
+      }),
+    );
+    service.loadFeed();
+    service.toggleSourceFilter('mslearn');
+    service.toggleTagFilter('angular');
+
+    // Act
+    const result = service.filteredArticles();
+
+    // Assert
+    expect(result.map((item) => item.id)).toEqual(['ms-1', 'ms-2']);
   });
 
   it('GivenOnlyHackerNewsSelectedWithNoTagsSelected_WhenFilteredArticlesRead_ThenOnlySourceFilterAppliesAndResultIsNotForcedEmpty', () => {
