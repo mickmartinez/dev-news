@@ -16,7 +16,6 @@ export class NewsFeedComponent implements OnInit {
   private readonly favoritesStore = inject(FavoritesStoreService, { optional: true });
   readonly feedError = signal<string | null>(null);
   readonly availableSources: ArticleSource[] = [...(this.state.availableSources ?? [])];
-  readonly availableTags: string[] = [...(this.state.availableTags ?? [])];
 
   ngOnInit(): void {
     this.state.loadFeed();
@@ -28,6 +27,10 @@ export class NewsFeedComponent implements OnInit {
 
   isFavorite(id: string): boolean {
     return this.favoritesStore?.isFavorite(id) ?? false;
+  }
+
+  get availableTags(): string[] {
+    return [...this.state.availableTags()];
   }
 
   get selectedSources(): ArticleSource[] {

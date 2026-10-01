@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { DEVNEWS_TAGS } from '../../data/topic-tags';
+import { MSLEARN_TAGS } from '../../data/topic-tags';
 
-/** Shape of a single learning path/module entry from the Microsoft Learn Catalog API. */
 export interface MsLearnCatalogEntry {
   uid: string;
   title: string;
@@ -11,7 +10,6 @@ export interface MsLearnCatalogEntry {
   url: string;
   last_modified: string | null;
   duration_in_minutes: number | null;
-  /** DEVNEWS_TAGS topics found in the title/summary; always non-empty, since fetchArticles() only keeps matching entries. */
   matchedTopics: string[];
 }
 
@@ -22,7 +20,6 @@ interface MsLearnCatalogResponse {
 
 const MSLEARN_CATALOG_API = 'https://learn.microsoft.com/api/catalog';
 
-/** Fetches Microsoft Learn learning paths/modules filtered to the configured AI topics. */
 @Injectable({ providedIn: 'root' })
 export class MsLearnFetcherService {
   private readonly http = inject(HttpClient);
@@ -42,6 +39,6 @@ export class MsLearnFetcherService {
 
   private matchedTopics(entry: MsLearnCatalogEntry): string[] {
     const haystack = `${entry.title} ${entry.summary ?? ''}`.toLowerCase();
-    return DEVNEWS_TAGS.filter((topic) => haystack.includes(topic.toLowerCase()));
+    return MSLEARN_TAGS.filter((topic) => haystack.includes(topic.toLowerCase()));
   }
 }
